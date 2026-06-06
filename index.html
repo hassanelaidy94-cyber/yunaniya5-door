@@ -1823,7 +1823,7 @@ function saveDoorResidents(){
 function canOpenDoor(){
   if(currentRole==='admin') return true;
   if(currentRole==='supervisor') return !!(currentSupervisorPerms && currentSupervisorPerms.door);
-  if(currentRole==='resident_user') return doorAllowedResidents.includes(currentResidentId);
+  if(currentRole==='resident_user') return !!(currentResidentPerms && currentResidentPerms.door) || doorAllowedResidents.includes(currentResidentId);
   return false;
 }
 
