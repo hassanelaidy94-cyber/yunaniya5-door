@@ -514,7 +514,7 @@ input::placeholder{color:#607d8b}
     <div class="cam-setup-step">📱 Device ID</div>
     <input class="cam-ip-input" id="tuyaDeviceId" placeholder="Device ID" type="text" style="margin-bottom:8px" value="bf975a0b7f1159d9e5u3ln"/>
     <div class="cam-setup-step">🌐 Vercel URL (رابط السيرفر)</div>
-    <input class="cam-ip-input" id="vercelUrl" placeholder="https://your-project.vercel.app" type="text" style="margin-bottom:8px"/>
+    <input class="cam-ip-input" id="vercelUrl" placeholder="https://yunaniya5-door.vercel.app" type="text" style="margin-bottom:8px" value="https://yunaniya5-door.vercel.app"/>
     <div class="cam-setup-step">🔐 App Secret</div>
     <input class="cam-ip-input" id="appSecret" placeholder="yunaniya5_door_2025" type="text" style="margin-bottom:10px" value="yunaniya5_door_2025"/>
     <button class="btn" style="width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20)" onclick="saveDoorSettings()">💾 حفظ إعدادات الباب</button>
@@ -1759,10 +1759,10 @@ function applyRole(){
 // DOOR MODULE
 // =====================
 let doorSettings = {
-  clientId:  'gfn4jux3rr5fc74mnamk',
-  secret:    '7dfaa187d7164de2849eb284d00eb428',
-  deviceId:  'bf975a0b7f1159d9e5u3ln',
-  endpoint:  'https://openapi.tuyaeu.com',
+  clientId: 'gfn4jux3rr5fc74mnamk',
+  secret: '7dfaa187d7164de2849eb284d00eb428',
+  deviceId: 'bf975a0b7f1159d9e5u3ln',
+  endpoint: 'https://openapi.tuyaeu.com',
   vercelUrl: 'https://yunaniya5-door.vercel.app',
   appSecret: 'yunaniya5_door_2025'
 };
@@ -1783,13 +1783,16 @@ function loadDoorSettings(){
 
 function saveDoorSettings(){
   if(currentRole!=='admin') return;
+  const vercelInput = document.getElementById('vercelUrl').value.trim().replace(/\/+$/, '');
   const s = {
     clientId:   document.getElementById('tuyaClientId').value.trim()  || doorSettings.clientId,
     secret:     document.getElementById('tuyaSecret').value.trim()     || doorSettings.secret,
     deviceId:   document.getElementById('tuyaDeviceId').value.trim()   || doorSettings.deviceId,
-    vercelUrl:  document.getElementById('vercelUrl').value.trim()      || doorSettings.vercelUrl || '',
+    vercelUrl:  vercelInput || doorSettings.vercelUrl || 'https://yunaniya5-door.vercel.app',
     appSecret:  document.getElementById('appSecret').value.trim()      || 'yunaniya5_door_2025',
+    endpoint:   doorSettings.endpoint || 'https://openapi.tuyaeu.com',
   };
+  if(!s.vercelUrl){ alert('⚠️ يجب إدخال رابط السيرفر (Vercel URL)'); return; }
   doorSettings = s;
   db.ref('yg5_door/settings').set(s)
     .then(()=>{ alert('✅ تم حفظ إعدادات الباب!'); })
@@ -1833,7 +1836,7 @@ function updateDoorUI(){
   if(diEl)  diEl.value  = doorSettings.deviceId  || '';
   const vuEl = document.getElementById('vercelUrl');
   const asEl = document.getElementById('appSecret');
-  if(vuEl)  vuEl.value  = doorSettings.vercelUrl || '';
+  if(vuEl)  vuEl.value  = doorSettings.vercelUrl || 'https://yunaniya5-door.vercel.app';
   if(asEl)  asEl.value  = doorSettings.appSecret || 'yunaniya5_door_2025';
 }
 
@@ -1925,8 +1928,8 @@ async function openDoor(){
   clearInterval(doorTimerInterval);
 
   try {
-    const vercelUrl = doorSettings.vercelUrl || '';
-    if(!vercelUrl){ throw new Error('لم يتم إعداد رابط الـ Server بعد'); }
+    const vercelUrl = (doorSettings.vercelUrl || 'https://yunaniya5-door.vercel.app').replace(/\/+$/, '');
+    if(!vercelUrl){ throw new Error('لم يتم إعداد رابط الـ Server بعد - راجع الإعدادات'); }
 
     const resp = await fetch(vercelUrl + '/api/open-door', {
       method: 'POST',
