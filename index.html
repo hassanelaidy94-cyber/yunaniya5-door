@@ -1,0 +1,2706 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="يونانية 5">
+<meta name="theme-color" content="#0f2027">
+<title>عمارة يونانية 5</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@9.23.0/firebase-database-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Cairo',sans-serif;background:linear-gradient(135deg,#0f2027 0%,#203a43 50%,#2c5364 100%);min-height:100vh;color:#e8f4f8;direction:rtl}
+
+/* LOGIN */
+.login-screen{position:fixed;inset:0;z-index:9999;background:linear-gradient(160deg,#0a1628 0%,#0f2027 40%,#1a3a4a 100%);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-screen::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(79,195,247,.12) 0%,transparent 70%);top:-80px;right:-80px;border-radius:50%}
+.login-box{position:relative;z-index:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:36px 28px;width:100%;max-width:360px;text-align:center;backdrop-filter:blur(20px);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.login-avatar{width:80px;height:80px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,#4fc3f7,#0288d1);display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 24px rgba(79,195,247,.4);border:3px solid rgba(255,255,255,.2)}
+.login-name{font-size:24px;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 2px 12px rgba(79,195,247,.6)}
+.login-role{font-size:13px;color:#4fc3f7;margin-bottom:20px;font-weight:600;font-style:italic}
+.login-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(79,195,247,.3),transparent);margin-bottom:20px}
+.login-field-label{font-size:12px;color:#90caf9;text-align:right;margin-bottom:8px;font-weight:600}
+.login-input-wrap{position:relative;margin-bottom:16px}
+.login-input{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);color:#e8f4f8;border-radius:12px;padding:13px 44px 13px 16px;font-family:'Cairo',sans-serif;font-size:15px;letter-spacing:3px;outline:none;transition:border-color .2s}
+.login-input:focus{border-color:#4fc3f7;box-shadow:0 0 0 3px rgba(79,195,247,.15)}
+.login-input::placeholder{color:#546e7a;letter-spacing:0}
+.eye-btn{position:absolute;left:12px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;opacity:.6}
+.login-btn{width:100%;background:linear-gradient(135deg,#4fc3f7,#0288d1);border:none;color:#fff;border-radius:12px;padding:14px;font-family:'Cairo',sans-serif;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(79,195,247,.35)}
+.login-err{color:#ef5350;font-size:12px;margin-top:10px;min-height:18px;font-weight:600}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(15,32,39,.92);z-index:5000;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+.loading-spinner{width:48px;height:48px;border:4px solid rgba(79,195,247,.2);border-top-color:#4fc3f7;border-radius:50%;animation:spin .8s linear infinite}
+.loading-msg{color:#90caf9;font-size:14px;font-weight:600}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sync-badge{position:fixed;bottom:16px;left:16px;background:rgba(102,187,106,.9);color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;z-index:500;display:none;animation:fadeInOut 2s ease forwards}
+@keyframes fadeInOut{0%{opacity:0;transform:translateY(10px)}20%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0}}
+
+/* HEADER */
+.header{background:rgba(255,255,255,.05);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header-title{font-size:17px;font-weight:900;color:#4fc3f7}
+.header-sub{font-size:10px;color:#90caf9;margin-top:1px}
+.month-selects{display:flex;gap:5px}
+select{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#e8f4f8;border-radius:8px;padding:6px 7px;font-family:'Cairo',sans-serif;font-size:12px;outline:none}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:12px 10px 0}
+.stat-card{background:rgba(255,255,255,.05);border-radius:10px;padding:9px 6px;text-align:center;border:1px solid rgba(255,255,255,.08)}
+.stat-icon{font-size:16px}
+.stat-value{font-size:16px;font-weight:900;margin-top:2px}
+.stat-label{font-size:9px;color:#90caf9;margin-top:1px}
+
+/* PROGRESS */
+.progress-wrap{padding:9px 10px 0}
+.progress-bar{background:rgba(255,255,255,.1);border-radius:6px;height:7px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#4fc3f7,#66bb6a);border-radius:6px;transition:width .5s}
+.progress-label{font-size:10px;color:#90caf9;text-align:center;margin-top:3px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid rgba(255,255,255,.1);margin-top:10px;overflow-x:auto}
+.tab{flex:1;min-width:65px;padding:9px 4px;text-align:center;border:none;background:transparent;color:#90caf9;font-family:'Cairo',sans-serif;font-size:12px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.tab.active{color:#4fc3f7;border-bottom-color:#4fc3f7;font-weight:700;background:rgba(79,195,247,.08)}
+.admin-tab{display:none} /* JS controls visibility */
+
+/* CONTENT */
+.content{padding:10px}
+.filters{display:flex;gap:7px;margin-bottom:10px;flex-wrap:wrap}
+.floor-label{font-size:12px;color:#4fc3f7;font-weight:700;padding:5px 9px;background:rgba(79,195,247,.08);border-radius:6px;margin-bottom:5px;margin-top:4px}
+
+/* RESIDENT CARD */
+.r-card{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-radius:10px;margin-bottom:5px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);transition:all .2s}
+.r-card.paid{background:rgba(102,187,106,.1);border-color:rgba(102,187,106,.3)}
+.r-card.overdue2{border-color:rgba(239,83,80,.4);background:rgba(239,83,80,.06)}
+.r-name{font-weight:600;font-size:13px}
+.r-meta{font-size:10px;color:#90caf9;margin-top:1px}
+.r-phone{font-size:10px;color:#4fc3f7;margin-top:1px}
+.r-debt{font-size:10px;color:#ef5350;font-weight:700;margin-top:2px}
+.pay-btn{padding:6px 11px;border-radius:7px;border:none;background:rgba(255,255,255,.1);color:#ccc;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:11px;white-space:nowrap;transition:all .2s}
+.pay-btn.paid{background:#66bb6a;color:#fff}
+
+/* BOX */
+.box{background:rgba(255,255,255,.05);border-radius:12px;padding:13px;margin-bottom:13px;border:1px solid rgba(255,255,255,.1)}
+.box-title{font-weight:700;margin-bottom:10px;font-size:14px}
+.form-row{display:flex;gap:7px;flex-wrap:wrap}
+input{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#e8f4f8;border-radius:8px;padding:8px 10px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;flex:1;min-width:90px}
+input::placeholder{color:#607d8b}
+.btn{background:linear-gradient(135deg,#4fc3f7,#0288d1);border:none;color:#fff;border-radius:8px;padding:8px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px}
+.btn-green{background:linear-gradient(135deg,#25D366,#128C7E)}
+.btn-red{background:linear-gradient(135deg,#ef5350,#b71c1c)}
+.btn-orange{background:linear-gradient(135deg,#ffa726,#e65100)}
+.btn-purple{background:linear-gradient(135deg,#ab47bc,#6a1b9a)}
+.btn-full{width:100%;padding:12px;font-size:14px;margin-bottom:8px}
+
+/* EXPENSES */
+.exp-item{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;background:rgba(255,255,255,.05);border-radius:10px;margin-bottom:5px;border:1px solid rgba(255,255,255,.08)}
+.exp-amt{color:#ffa726;font-weight:700;font-size:14px}
+.btn-del{background:rgba(239,83,80,.2);border:1px solid rgba(239,83,80,.4);color:#ef5350;border-radius:6px;padding:4px 9px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px}
+.total-row{padding:11px 13px;background:rgba(171,71,188,.15);border-radius:10px;border:1px solid rgba(171,71,188,.3);display:flex;justify-content:space-between;font-weight:700;margin-top:7px}
+.summary-row{display:flex;justify-content:space-between;margin-bottom:7px;align-items:center}
+.divider{border-top:1px solid rgba(255,255,255,.1);margin:9px 0}
+
+/* WHATSAPP */
+.unpaid-item{padding:7px 11px;background:rgba(239,83,80,.08);border-radius:8px;border:1px solid rgba(239,83,80,.2);margin-bottom:5px}
+.unpaid-item.overdue2{border-color:rgba(239,83,80,.5);background:rgba(239,83,80,.15)}
+.msg-box{background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.3);border-radius:12px;padding:13px;margin-top:12px}
+.msg-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+.msg-text{white-space:pre-wrap;font-family:'Cairo',sans-serif;font-size:12px;line-height:1.8;color:#e8f4f8}
+.btn-copy{background:rgba(37,211,102,.2);border:1px solid rgba(37,211,102,.4);color:#25D366;border-radius:6px;padding:5px 11px;cursor:pointer;font-family:'Cairo',sans-serif;font-size:11px}
+
+/* FUND */
+.fund-hero{background:linear-gradient(135deg,rgba(79,195,247,.15),rgba(102,187,106,.15));border:2px solid rgba(79,195,247,.3);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px}
+.fund-amount{font-size:36px;font-weight:900;margin:8px 0 4px}
+.fund-label{font-size:12px;color:#90caf9}
+.fund-month-card{background:rgba(255,255,255,.04);border-radius:10px;padding:10px 8px;border:1px solid rgba(255,255,255,.08);margin-bottom:7px}
+.fund-month-card.positive{border-color:rgba(102,187,106,.3);background:rgba(102,187,106,.06)}
+.fund-month-card.negative{border-color:rgba(239,83,80,.3);background:rgba(239,83,80,.06)}
+
+/* ACCOUNT STATEMENT */
+.stmt-card{background:rgba(255,255,255,.04);border-radius:10px;padding:11px;margin-bottom:7px;border:1px solid rgba(255,255,255,.08);cursor:pointer}
+.stmt-card:hover{background:rgba(255,255,255,.07)}
+.stmt-name{font-size:13px;font-weight:700}
+.stmt-meta{font-size:10px;color:#90caf9;margin-top:2px}
+.stmt-debt{font-size:13px;font-weight:900;color:#ef5350}
+.stmt-ok{font-size:12px;color:#66bb6a;font-weight:700}
+.month-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px}
+.month-paid{color:#66bb6a;font-weight:700}
+.month-unpaid{color:#ef5350}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#1a3040;border-radius:16px;padding:18px;width:100%;max-width:420px;border:1px solid rgba(255,255,255,.15);max-height:90vh;overflow-y:auto}
+.modal-title{font-size:16px;font-weight:900;color:#4fc3f7;margin-bottom:14px}
+.modal label{font-size:12px;color:#90caf9;display:block;margin-bottom:4px;margin-top:10px}
+.modal input{width:100%}
+.modal-btns{display:flex;gap:8px;margin-top:14px}
+.modal-btns button{flex:1}
+
+/* ALERT BANNER */
+.alert-banner{background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.4);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#ef9a9a}
+.alert-banner.warning{background:rgba(255,167,38,.1);border-color:rgba(255,167,38,.4);color:#ffcc80}
+
+/* INSTAPAY */
+.payment-box{background:rgba(79,195,247,.08);border:1px solid rgba(79,195,247,.2);border-radius:12px;padding:12px;margin-top:10px;font-size:12px}
+.payment-box .pay-method{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:8px;background:rgba(255,255,255,.05);border-radius:8px}
+.payment-box .pay-icon{font-size:20px}
+.payment-box .pay-info{flex:1}
+.payment-box .pay-name{font-weight:700;font-size:12px}
+.payment-box .pay-num{color:#4fc3f7;font-size:11px}
+
+.empty{text-align:center;color:#90caf9;padding:24px;font-size:13px}
+.all-paid{text-align:center;color:#66bb6a;padding:18px;font-size:14px}
+.role-badge{font-size:11px;padding:3px 10px;border-radius:20px;margin-top:4px;font-weight:700;display:inline-block}
+
+/* DOOR */
+.door-section{margin-bottom:10px}
+.door-btn{width:100%;padding:18px;border-radius:16px;border:none;font-family:'Cairo',sans-serif;font-weight:900;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.door-btn-open{background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff}
+.door-btn-open:active{transform:scale(.97)}
+.door-btn-opening{background:linear-gradient(135deg,#f57f17,#e65100);color:#fff;animation:doorPulse 1s infinite}
+.door-btn-disabled{background:rgba(255,255,255,.05);color:#37474f;cursor:not-allowed;border:1px solid rgba(255,255,255,.08)}
+@keyframes doorPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.door-status{text-align:center;font-size:12px;margin-top:8px;min-height:18px;font-weight:600}
+.door-status.success{color:#66bb6a}
+.door-status.error{color:#ef5350}
+.door-status.loading{color:#ffa726}
+.door-info{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;margin-bottom:10px;font-size:12px;color:#546e7a;text-align:center}
+.door-setup{background:rgba(255,167,38,.06);border:1px solid rgba(255,167,38,.2);border-radius:12px;padding:12px;margin-bottom:10px}
+.door-timer{font-size:28px;font-weight:900;color:#ffa726;text-align:center;margin:8px 0}
+
+/* RESET */
+.reset-box{background:rgba(239,83,80,.06);border:1px solid rgba(239,83,80,.2);border-radius:12px;padding:14px;margin-top:10px}
+.reset-title{font-size:12px;font-weight:700;color:#ef5350;margin-bottom:8px}
+.reset-desc{font-size:11px;color:#546e7a;margin-bottom:10px;line-height:1.5}
+
+/* CAMERAS */
+.cam-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.cam-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.cam-card:active{transform:scale(.97)}
+.cam-thumb{width:100%;aspect-ratio:16/9;background:#0a1628;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;position:relative}
+.cam-thumb-icon{font-size:28px;opacity:.5}
+.cam-thumb-name{font-size:10px;color:#90caf9}
+.cam-live-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#ef5350;border-radius:50%;animation:blink 1.2s infinite}
+.cam-live-dot.on{background:#66bb6a}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.cam-label{padding:6px 8px;font-size:11px;font-weight:700;color:#e8f4f8;border-top:1px solid rgba(255,255,255,.08)}
+.cam-sublabel{font-size:9px;color:#90caf9;padding:0 8px 6px}
+.cam-viewer{display:none;position:fixed;inset:0;z-index:2000;background:#000;flex-direction:column}
+.cam-viewer.open{display:flex}
+.cam-viewer-header{background:rgba(15,32,39,.95);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.1)}
+.cam-viewer-title{font-size:15px;font-weight:900;color:#4fc3f7}
+.cam-viewer-body{flex:1;display:flex;align-items:center;justify-content:center;background:#0a1628;position:relative}
+.cam-iframe{width:100%;height:100%;border:none}
+.cam-loading{position:absolute;display:flex;flex-direction:column;align-items:center;gap:10px}
+.cam-spinner{width:40px;height:40px;border:3px solid rgba(79,195,247,.2);border-top-color:#4fc3f7;border-radius:50%;animation:spin .8s linear infinite}
+.cam-loading-txt{color:#90caf9;font-size:13px;font-weight:600}
+.cam-viewer-footer{background:rgba(15,32,39,.95);padding:10px;display:flex;gap:8px;border-top:1px solid rgba(255,255,255,.1)}
+.cam-action-btn{flex:1;padding:10px 6px;border-radius:8px;border:none;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px}
+.cam-info-box{background:rgba(79,195,247,.07);border:1px solid rgba(79,195,247,.2);border-radius:12px;padding:12px;margin-bottom:10px}
+.cam-info-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px}
+.cam-info-label{color:#90caf9}
+.cam-info-val{color:#4fc3f7;font-weight:700}
+.cam-setup-box{background:rgba(255,167,38,.07);border:1px solid rgba(255,167,38,.25);border-radius:12px;padding:12px;margin-bottom:10px}
+.cam-setup-title{font-size:12px;font-weight:700;color:#ffa726;margin-bottom:8px}
+.cam-setup-step{font-size:11px;color:#ffcc80;margin-bottom:4px;padding-right:4px}
+.cam-ip-input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(79,195,247,.3);color:#e8f4f8;border-radius:8px;padding:8px 10px;font-family:'Cairo',sans-serif;font-size:13px;outline:none;margin-top:6px;margin-bottom:8px;direction:ltr}
+.cam-admin-section{display:none}
+
+/* SUPERVISORS */
+.sup-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.sup-info{flex:1}
+.sup-name{font-size:14px;font-weight:700;color:#e8f4f8;margin-bottom:3px}
+.sup-meta{font-size:11px;color:#546e7a}
+.sup-badge{font-size:10px;padding:3px 8px;border-radius:10px;font-weight:700;background:rgba(79,195,247,.15);color:#4fc3f7;margin-left:6px}
+.sup-actions{display:flex;gap:6px}
+.sup-del-btn{background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.3);color:#ef5350;border-radius:6px;padding:5px 10px;cursor:pointer;font-size:12px;font-family:'Cairo',sans-serif}
+.perm-label{display:flex;align-items:center;gap:6px;font-size:11px;color:#90caf9;background:rgba(255,255,255,.04);padding:7px 8px;border-radius:8px;cursor:pointer;border:1px solid rgba(255,255,255,.06)}
+.perm-label:has(input:checked){background:rgba(79,195,247,.08);border-color:rgba(79,195,247,.2)}
+.perm-label span{flex:1}
+.sup-form{background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:12px;padding:12px;margin-bottom:10px}
+
+@media print{
+  body{background:white!important;color:black!important;font-family:Arial,sans-serif}
+  .no-print{display:none!important}
+  table{width:100%;border-collapse:collapse;direction:rtl}
+  th{background:#1a3040;color:white;padding:8px;font-size:12px}
+  td{padding:7px 8px;font-size:11px;border-bottom:1px solid #ddd}
+  tr:nth-child(even) td{background:#f9f9f9}
+  h1{text-align:center;color:#1a3040;font-size:20px;margin-bottom:4px}
+  .print-subtitle{text-align:center;color:#555;margin-bottom:20px;font-size:13px}
+  .print-stats{display:flex;gap:12px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+  .print-stat{border:2px solid #1a3040;border-radius:8px;padding:10px 18px;text-align:center}
+  .print-stat .v{font-size:22px;font-weight:900}
+  .print-stat .l{font-size:10px;color:#555}
+  h2{color:#1a3040;font-size:14px;margin:16px 0 8px;border-bottom:2px solid #1a3040;padding-bottom:4px}
+  .balance-box{text-align:center;padding:14px;border-radius:10px;margin-top:16px;margin-bottom:24px}
+  .fund-total-box{text-align:center;padding:18px;border:3px solid #0288d1;border-radius:10px;margin-top:8px;background:#f0f9ff}
+}
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="loading-spinner"></div>
+  <div class="loading-msg" id="loadingMsg">جاري التحميل...</div>
+</div>
+<div class="sync-badge" id="syncBadge">✓ تم الحفظ</div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="login-avatar">🏢</div>
+    <div class="login-name">عمارة يونانية 5</div>
+    <div class="login-role">Eng. Hassan</div>
+    <div class="login-divider"></div>
+    <div class="login-field-label">🔐 كلمة المرور</div>
+    <div class="login-input-wrap">
+      <input class="login-input" id="passInput" type="password" placeholder="ادخل كلمة المرور" maxlength="20" onkeydown="if(event.key==='Enter')checkPass()"/>
+      <span class="eye-btn" onclick="togglePass()">👁</span>
+    </div>
+    <button class="login-btn" onclick="checkPass()">دخول</button>
+    <div class="login-err" id="passErr"></div>
+    <div style="font-size:11px;color:#37474f;margin-top:20px">🏢 نظام تحصيل الصيانة الشهري</div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<!-- PAYMENT SCREEN (users only) -->
+<div id="paymentScreen" style="display:none;position:fixed;inset:0;z-index:9998;background:linear-gradient(160deg,#0a1628 0%,#0f2027 40%,#1a3a4a 100%);align-items:center;justify-content:center;padding:20px;flex-direction:column">
+  <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:24px;padding:28px 22px;width:100%;max-width:380px;text-align:center;backdrop-filter:blur(20px)">
+    <div style="font-size:40px;margin-bottom:10px">💳</div>
+    <div style="font-size:20px;font-weight:900;color:#4fc3f7;margin-bottom:4px">طرق الدفع</div>
+    <div style="font-size:12px;color:#90caf9;margin-bottom:20px">قيمة الصيانة الشهرية: <strong style="color:#ffa726">500 جنيه</strong></div>
+    
+    <div style="height:1px;background:linear-gradient(90deg,transparent,rgba(79,195,247,.3),transparent);margin-bottom:20px"></div>
+
+    <!-- InstaPay -->
+    <div style="background:rgba(0,120,255,.1);border:1px solid rgba(0,120,255,.3);border-radius:14px;padding:14px;margin-bottom:12px;text-align:right">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#0070f3,#00a8ff);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">💙</div>
+        <div>
+          <div style="font-weight:900;font-size:15px;color:#fff">InstaPay</div>
+          <div style="font-size:11px;color:#90caf9">تحويل فوري</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;color:#4fc3f7;font-weight:700;letter-spacing:.5px">ahmedharby1990@instapay</div>
+      <div style="display:flex;gap:8px">
+        <button onclick="copyText('ahmedharby1990@instapay')" style="flex:1;background:rgba(0,120,255,.2);border:1px solid rgba(0,120,255,.4);color:#60b4ff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
+        <button onclick="window.open('https://ipn.eg/S/ahmedharby1990/instapay/8XixmW','_blank')" style="flex:1;background:linear-gradient(135deg,#0070f3,#00a8ff);border:none;color:#fff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">🔗 فتح الرابط</button>
+      </div>
+    </div>
+
+    <!-- Vodafone Cash -->
+    <div style="background:rgba(230,0,0,.1);border:1px solid rgba(230,0,0,.3);border-radius:14px;padding:14px;margin-bottom:20px;text-align:right">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="width:40px;height:40px;background:linear-gradient(135deg,#e60000,#ff4444);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px">❤️</div>
+        <div>
+          <div style="font-weight:900;font-size:15px;color:#fff">Vodafone Cash</div>
+          <div style="font-size:11px;color:#90caf9">تحويل فوداكاش</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:16px;color:#ff6b6b;font-weight:700;letter-spacing:2px">01023399883</div>
+      <button onclick="copyText('01023399883')" style="width:100%;background:rgba(230,0,0,.2);border:1px solid rgba(230,0,0,.4);color:#ff6b6b;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
+    </div>
+
+    <div style="font-size:11px;color:#546e7a;margin-bottom:16px">بعد الدفع، اضغط "متابعة" لتسجيل دفعك</div>
+    <button onclick="enterMainApp()" style="width:100%;background:linear-gradient(135deg,#4fc3f7,#0288d1);border:none;color:#fff;border-radius:12px;padding:14px;font-family:Cairo,sans-serif;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(79,195,247,.35)">متابعة ← تسجيل الدفع</button>
+  </div>
+</div>
+
+<div id="mainApp" style="display:none">
+
+<div class="header no-print">
+  <div>
+    <div class="header-title">🏢 يونانية 5</div>
+    <div class="header-sub">نظام تحصيل الصيانة</div>
+    <div id="roleBadge" class="role-badge"></div>
+  </div>
+  <div class="month-selects">
+    <select id="selMonth"></select>
+    <select id="selYear"></select>
+  </div>
+</div>
+
+<div class="stats-grid no-print" id="statsGrid"></div>
+<div class="progress-wrap no-print">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+</div>
+
+<div class="tabs no-print" id="mainTabs">
+  <button class="tab active" id="tab-btn-collection" onclick="showTab('collection')">📋 التحصيل</button>
+  <button class="tab" id="tab-btn-expenses" onclick="showTab('expenses')">💰 المصروفات</button>
+  <button class="tab admin-tab" id="tab-btn-whatsapp" onclick="showTab('whatsapp')">📱 واتساب</button>
+  <button class="tab" id="tab-btn-residents" onclick="showTab('residents')">👥 السكان</button>
+  <button class="tab admin-tab" id="tab-btn-accounts" onclick="showTab('accounts')">📒 الحسابات</button>
+  <button class="tab admin-tab" id="tab-btn-fund" onclick="showTab('fund')">🏦 الصندوق</button>
+  <button class="tab admin-tab" id="tab-btn-reports" onclick="showTab('reports')">📄 تقارير</button>
+  <button class="tab admin-tab" id="tab-btn-log" onclick="showTab('log')">📝 السجل</button>
+  <button class="tab admin-tab" id="tab-btn-door" onclick="showTab('door')">🚪 الباب</button>
+  <button class="tab admin-tab" id="tab-btn-cameras" onclick="showTab('cameras')">📷 كاميرات</button>
+  <button class="tab admin-tab" id="tab-btn-supervisors" onclick="showTab('supervisors')">👮 المشرفين</button>
+  <button class="tab admin-tab" id="tab-btn-resusers" onclick="showTab('resusers')">🏠 سكان التطبيق</button>
+</div>
+
+<div class="content no-print">
+
+<!-- COLLECTION -->
+<div id="tab-collection">
+  <div id="reminderBanner"></div>
+  <div class="filters">
+    <select id="filterFloor" onchange="render()"><option value="all">كل الأدوار</option></select>
+    <select id="filterStatus" onchange="render()">
+      <option value="all">الكل</option>
+      <option value="paid">دفعوا</option>
+      <option value="unpaid">لم يدفعوا</option>
+      <option value="overdue">متأخرون</option>
+    </select>
+  </div>
+  <div id="residentList"></div>
+</div>
+
+<!-- EXPENSES -->
+<div id="tab-expenses" style="display:none">
+  <div class="box admin-only">
+    <div class="box-title">➕ إضافة مصروف</div>
+    <div class="form-row">
+      <input id="expLabel" placeholder="البيان (كهرباء، مياه...)"/>
+      <input id="expAmount" type="number" placeholder="المبلغ" style="max-width:100px"/>
+      <button class="btn" onclick="addExpense()">إضافة</button>
+    </div>
+  </div>
+  <div id="expenseList"></div>
+  <div class="box" id="summaryBox" style="margin-top:10px"></div>
+</div>
+
+<!-- WHATSAPP -->
+<div id="tab-whatsapp" style="display:none">
+  <div id="wa5Reminder"></div>
+  <div class="box">
+    <div class="box-title">⏳ المتأخرون في السداد</div>
+    <div id="unpaidList"></div>
+  </div>
+  <div id="waButtons"></div>
+  <div class="payment-box">
+    <div class="box-title" style="font-size:13px;margin-bottom:8px">💳 بيانات الدفع للسكان</div>
+    <div class="pay-method">
+      <div class="pay-icon">💙</div>
+      <div class="pay-info">
+        <div class="pay-name">InstaPay</div>
+        <div class="pay-num">ahmedharby1990@instapay</div>
+      </div>
+      <button class="btn-copy" onclick="copyText('ahmedharby1990@instapay')">نسخ</button>
+    </div>
+    <div class="pay-method">
+      <div class="pay-icon">❤️</div>
+      <div class="pay-info">
+        <div class="pay-name">Vodafone Cash</div>
+        <div class="pay-num">01023399883</div>
+      </div>
+      <button class="btn-copy" onclick="copyText('01023399883')">نسخ</button>
+    </div>
+  </div>
+  <div id="msgBox" style="display:none" class="msg-box">
+    <div class="msg-hdr">
+      <span style="font-weight:700;color:#25D366;font-size:13px">نص الرسالة</span>
+      <button class="btn-copy" onclick="copyMsg()">نسخ 📋</button>
+    </div>
+    <div class="msg-text" id="msgText"></div>
+  </div>
+</div>
+
+<!-- RESIDENTS -->
+<div id="tab-residents" style="display:none">
+  <button class="btn btn-full" id="addResidentBtn" onclick="openAddModal()" style="display:none">➕ إضافة ساكن جديد</button>
+  <div id="residentsMgmt"></div>
+</div>
+
+<!-- ACCOUNTS -->
+<div id="tab-accounts" style="display:none">
+  <div class="box">
+    <div class="box-title">📒 كشف حساب السكان</div>
+    <div style="font-size:11px;color:#90caf9;margin-bottom:10px">اضغط على أي شقة لعرض كشف حسابها الكامل</div>
+    <div id="accountsList"></div>
+  </div>
+</div>
+
+<!-- FUND -->
+<div id="tab-fund" style="display:none">
+  <div class="fund-hero">
+    <div class="fund-label">💰 إجمالي صندوق العمارة</div>
+    <div class="fund-amount" id="fundTotal" style="color:#4fc3f7">0 ج</div>
+    <div class="fund-label" id="fundSub">مجموع أرصدة جميع الشهور</div>
+  </div>
+  <div class="box admin-only">
+    <div class="box-title">➕ رصيد افتتاحي</div>
+    <div class="form-row">
+      <input id="fundOpening" type="number" placeholder="مثال: 5000"/>
+      <button class="btn" onclick="saveFundOpening()">حفظ</button>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box-title">📅 تفاصيل كل شهر</div>
+    <div id="fundMonthsList"></div>
+  </div>
+</div>
+
+<!-- REPORTS -->
+<div id="tab-reports" style="display:none">
+  <div class="box">
+    <div class="box-title">📄 تقرير الشهر الحالي</div>
+    <p style="font-size:12px;color:#90caf9;margin-bottom:12px">اضغط "طباعة / حفظ PDF" ثم اختر "Save as PDF"</p>
+    <button class="btn btn-full btn-orange" onclick="printReport()">🖨️ طباعة / حفظ PDF</button>
+  </div>
+  <div id="reportPreview"></div>
+</div>
+
+<!-- LOG -->
+<div id="tab-log" style="display:none">
+
+  <!-- زر Reset - للأدمن فقط -->
+  <div class="reset-box">
+    <div class="reset-title">⚠️ إعادة تعيين البيانات</div>
+    <div class="reset-desc">مسح كل بيانات التحصيل والمصروفات والسجل والرصيد الافتتاحي.<br>السكان والإعدادات تفضل كما هي.</div>
+    <button onclick="confirmReset('payments')" style="width:100%;background:rgba(239,83,80,.15);border:1px solid rgba(239,83,80,.3);color:#ef5350;border-radius:8px;padding:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:6px">🗑 مسح بيانات التحصيل والمصروفات</button>
+    <button onclick="confirmReset('all')" style="width:100%;background:rgba(239,83,80,.25);border:1px solid rgba(239,83,80,.5);color:#ef5350;border-radius:8px;padding:9px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer">💥 مسح كل البيانات (Reset كامل)</button>
+  </div>
+
+  <div class="box">
+    <div class="box-title">📝 سجل العمليات</div>
+    <div id="logList"></div>
+  </div>
+</div>
+
+<!-- DOOR TAB -->
+<div id="tab-door" style="display:none">
+
+  <!-- للساكن المصرح له -->
+  <div id="doorAllowed">
+    <div class="door-info">
+      <div style="font-size:32px;margin-bottom:6px">🏢</div>
+      <div style="font-weight:700;color:#e8f4f8;font-size:14px;margin-bottom:4px">باب عمارة يونانية 5</div>
+      <div>اضغط الزر لفتح الباب - يغلق تلقائياً بعد 7 ثواني</div>
+    </div>
+
+    <div class="door-section">
+      <button class="door-btn door-btn-open" id="doorBtn" onclick="openDoor()">
+        🔓 فتح باب العمارة
+      </button>
+      <div class="door-status" id="doorStatus"></div>
+      <div class="door-timer" id="doorTimer" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- للساكن غير المصرح له -->
+  <div id="doorDenied" style="display:none;text-align:center;padding:30px">
+    <div style="font-size:44px;margin-bottom:12px">🔒</div>
+    <div style="font-weight:700;color:#ef5350;font-size:15px;margin-bottom:6px">غير مصرح بفتح الباب</div>
+    <div style="font-size:12px;color:#546e7a">تواصل مع الإدارة للحصول على الصلاحية</div>
+  </div>
+
+  <!-- إعدادات الأدمن -->
+  <div class="door-setup cam-admin-section">
+    <div class="cam-setup-title">⚙️ إعدادات نظام فتح الباب</div>
+    <div class="cam-setup-step">🔑 Tuya Client ID</div>
+    <input class="cam-ip-input" id="tuyaClientId" placeholder="Client ID" type="text" style="margin-bottom:8px"/>
+    <div class="cam-setup-step">🔐 Tuya Client Secret</div>
+    <input class="cam-ip-input" id="tuyaSecret" placeholder="Client Secret" type="password" style="margin-bottom:8px"/>
+    <div class="cam-setup-step">📱 Device ID</div>
+    <input class="cam-ip-input" id="tuyaDeviceId" placeholder="Device ID" type="text" style="margin-bottom:8px" value="bf975a0b7f1159d9e5u3ln"/>
+    <div class="cam-setup-step">🌐 Vercel URL (رابط السيرفر)</div>
+    <input class="cam-ip-input" id="vercelUrl" placeholder="https://your-project.vercel.app" type="text" style="margin-bottom:8px"/>
+    <div class="cam-setup-step">🔐 App Secret</div>
+    <input class="cam-ip-input" id="appSecret" placeholder="yunaniya5_door_2025" type="text" style="margin-bottom:10px" value="yunaniya5_door_2025"/>
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20)" onclick="saveDoorSettings()">💾 حفظ إعدادات الباب</button>
+  </div>
+
+  <!-- تحديد السكان المسموح لهم - أدمن -->
+  <div class="door-setup cam-admin-section" style="border-color:rgba(79,195,247,.2);background:rgba(79,195,247,.04)">
+    <div class="cam-setup-title" style="color:#4fc3f7">👥 السكان المسموح لهم بفتح الباب</div>
+    <div class="cam-setup-step" style="margin-bottom:8px">الأدمن والمشرفين لهم صلاحية دائمة</div>
+    <div id="doorResidentsList"></div>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="saveDoorResidents()">💾 حفظ الصلاحيات</button>
+  </div>
+
+  <!-- زر تجربة للأدمن -->
+  <div class="cam-admin-section" style="margin-top:8px">
+    <button class="door-btn door-btn-open" onclick="openDoor()" style="font-size:14px;padding:12px">
+      🔓 تجربة فتح الباب (أدمن)
+    </button>
+  </div>
+
+</div>
+
+<!-- CAMERAS -->
+<div id="tab-cameras" style="display:none">
+
+  <!-- للساكن: عنوان بسيط -->
+  <div class="cam-info-box" id="camUserHeader">
+    <div class="cam-info-row"><span class="cam-info-label">📷 نظام المراقبة</span><span class="cam-info-val">عمارة يونانية 5</span></div>
+    <div class="cam-info-row"><span class="cam-info-label">📡 الحالة</span><span class="cam-info-val" id="camStatusDisplay">🟢 متصل</span></div>
+  </div>
+  <!-- رسالة للسكان ريثما يجي الـ Pi -->
+  <div id="camComingSoon" style="display:none;text-align:center;padding:24px;background:rgba(79,195,247,.05);border:1px solid rgba(79,195,247,.15);border-radius:12px;margin-bottom:10px">
+    <div style="font-size:40px;margin-bottom:10px">🔧</div>
+    <div style="font-weight:700;color:#4fc3f7;font-size:15px;margin-bottom:6px">قريباً - نظام المراقبة المباشر</div>
+    <div style="font-size:12px;color:#546e7a">جاري تجهيز نظام البث المباشر<br>سيكون متاحاً قريباً</div>
+  </div>
+
+  <!-- للأدمن: لوحة تحكم كاملة -->
+  <div class="cam-admin-section">
+
+    <!-- إعدادات الـ DVR -->
+    <div class="cam-setup-box" id="camSetupBox">
+      <div class="cam-setup-title">⚙️ إعدادات الـ DVR</div>
+      <div class="cam-info-row" style="margin-bottom:6px">
+        <span class="cam-info-label">🏠 IP داخلي</span><span class="cam-info-val">192.168.1.2</span>
+      </div>
+      <div class="cam-info-row" style="margin-bottom:10px">
+        <span class="cam-info-label">🌐 IP خارجي</span><span class="cam-info-val" id="camExtIpDisplay">197.45.170.52</span>
+      </div>
+      <div class="cam-setup-step">📡 IP المستخدم الحالي</div>
+      <input class="cam-ip-input" id="camIpField" placeholder="192.168.1.2" type="text" value="192.168.1.2"/>
+      <div class="cam-setup-step">🔑 كلمة سر الـ DVR</div>
+      <input class="cam-ip-input" id="camPassField" placeholder="كلمة السر" type="password"/>
+      <div style="display:flex;gap:6px;margin-top:4px">
+        <button class="btn" style="flex:1;background:linear-gradient(135deg,#37474f,#263238)" onclick="document.getElementById('camIpField').value='192.168.1.2';saveCamSettings()">🏠 داخلي</button>
+        <button class="btn" style="flex:1;background:linear-gradient(135deg,#0288d1,#01579b)" onclick="document.getElementById('camIpField').value='197.45.170.52';saveCamSettings()">🌐 خارجي</button>
+      </div>
+      <button class="btn" style="width:100%;margin-top:6px" onclick="saveCamSettings()">💾 حفظ إعدادات DVR</button>
+    </div>
+
+    <!-- لوحة تحكم الكاميرات -->
+    <div class="cam-setup-box" style="border-color:rgba(102,187,106,.25);background:rgba(102,187,106,.04)">
+      <div class="cam-setup-title" style="color:#66bb6a">🎛️ تحكم في الكاميرات المرئية للسكان</div>
+      <div class="cam-setup-step" style="margin-bottom:10px">فعّل الكاميرات التي تريد إظهارها للسكان وحدد اسمها</div>
+      <div id="camControlList"></div>
+      <button class="btn" style="width:100%;margin-top:8px;background:linear-gradient(135deg,#2e7d32,#1b5e20)" onclick="saveCamVisibility()">💾 حفظ اختيارات الكاميرات</button>
+    </div>
+
+    <!-- زر عرض كل الكاميرات -->
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,#546e7a,#37474f);margin-bottom:8px" onclick="openCamViewer('all','عرض كل الكاميرات')">📺 فتح واجهة DVR الكاملة</button>
+
+  </div>
+
+  <!-- شبكة الكاميرات - للجميع (بناءً على اختيار الأدمن) -->
+  <div class="cam-grid" id="camGrid"></div>
+
+  <!-- تنبيه للساكن إذا ما فيه كاميرات -->
+  <div id="camNoIp" style="display:none;text-align:center;padding:20px">
+    <div style="font-size:40px;margin-bottom:10px">📡</div>
+    <div style="font-weight:700;color:#ffa726;margin-bottom:6px">لا توجد كاميرات متاحة حالياً</div>
+    <div style="font-size:12px;color:#90caf9">تواصل مع الإدارة</div>
+  </div>
+
+</div>
+
+<!-- Camera Viewer Fullscreen -->
+<div class="cam-viewer" id="camViewer">
+  <div class="cam-viewer-header">
+    <div>
+      <div class="cam-viewer-title" id="camViewerTitle">📷 الكاميرا</div>
+      <div style="font-size:10px;color:#90caf9">🔴 بث مباشر</div>
+    </div>
+    <button onclick="closeCamViewer()" style="background:rgba(239,83,80,.2);border:1px solid rgba(239,83,80,.4);color:#ef5350;border-radius:8px;padding:6px 14px;cursor:pointer;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px">✕ إغلاق</button>
+  </div>
+  <div class="cam-viewer-body" id="camViewerBody">
+    <div class="cam-loading" id="camLoading">
+      <div class="cam-spinner"></div>
+      <div class="cam-loading-txt">جاري تحميل البث...</div>
+    </div>
+    <iframe class="cam-iframe" id="camIframe" src="" allowfullscreen></iframe>
+  </div>
+  <div class="cam-viewer-footer">
+    <button class="cam-action-btn" style="background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.3)" onclick="reloadCam()">🔄 تحديث</button>
+    <button class="cam-action-btn" style="background:rgba(102,187,106,.15);color:#66bb6a;border:1px solid rgba(102,187,106,.3)" onclick="requestFullscreen()">⛶ ملء الشاشة</button>
+    <button class="cam-action-btn" style="background:rgba(239,83,80,.15);color:#ef5350;border:1px solid rgba(239,83,80,.3)" onclick="closeCamViewer()">✕ إغلاق</button>
+  </div>
+</div>
+
+<!-- RESIDENT USERS TAB -->
+<div id="tab-resusers" style="display:none">
+
+  <div class="cam-info-box" style="margin-bottom:10px">
+    <div class="cam-info-row"><span class="cam-info-label">🏠 سكان التطبيق</span><span class="cam-info-val" id="resUserCountBadge">0</span></div>
+    <div style="font-size:11px;color:#546e7a;margin-top:4px">كل ساكن له كلمة سر خاصة وصلاحيات محددة</div>
+  </div>
+
+  <!-- فورم إضافة ساكن -->
+  <div class="sup-form">
+    <div class="cam-setup-title" style="color:#66bb6a;margin-bottom:10px">➕ إضافة ساكن للتطبيق</div>
+
+    <div class="cam-setup-step">👤 اختر الساكن</div>
+    <select class="cam-ip-input" id="resUserSelect" style="margin-bottom:8px">
+      <option value="">-- اختر الساكن --</option>
+    </select>
+
+    <div class="cam-setup-step">🔑 كلمة المرور</div>
+    <input class="cam-ip-input" id="resUserPass" placeholder="كلمة مرور الساكن" type="text" style="margin-bottom:12px"/>
+
+    <div class="cam-setup-step" style="margin-bottom:8px">🎛️ ما يشوفه في التطبيق</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_collection" checked style="accent-color:#66bb6a">
+        <span>📋 تحصيل (لنفسه فقط)</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_expenses" style="accent-color:#66bb6a">
+        <span>💰 مصروفات العمارة</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_fund" style="accent-color:#66bb6a">
+        <span>🏦 الصندوق</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_accounts" style="accent-color:#66bb6a">
+        <span>💳 الحسابات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_reports" style="accent-color:#66bb6a">
+        <span>📄 التقارير</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
+        <span>📷 الكاميرات</span>
+      </label>
+    </div>
+
+    <!-- اختيار كاميرات الساكن -->
+    <div id="resUserCamSection">
+      <div style="font-size:11px;color:#4fc3f7;font-weight:700;margin-bottom:6px">📷 الكاميرات التي يشوفها الساكن</div>
+      <div id="resUserCamList" style="display:grid;gap:5px;margin-bottom:10px"></div>
+    </div>
+
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20)" onclick="addResidentUser()">💾 إضافة الساكن للتطبيق</button>
+  </div>
+
+  <!-- قائمة السكان في التطبيق -->
+  <div id="resUserList"></div>
+
+</div>
+
+<!-- SUPERVISORS TAB -->
+<div id="tab-supervisors" style="display:none">
+
+  <div class="cam-info-box" style="margin-bottom:10px">
+    <div class="cam-info-row"><span class="cam-info-label">👮 إدارة المشرفين</span><span class="cam-info-val" id="supCountBadge">0 مشرف</span></div>
+    <div style="font-size:11px;color:#546e7a;margin-top:4px">الأدمن فقط يقدر يضيف أو يمسح المشرفين</div>
+  </div>
+
+  <!-- فورم إضافة مشرف -->
+  <div class="sup-form">
+    <div class="cam-setup-title" style="color:#4fc3f7;margin-bottom:10px">➕ إضافة مشرف جديد</div>
+
+    <div class="cam-setup-step">👤 الاسم</div>
+    <input class="cam-ip-input" id="supName" placeholder="اسم المشرف" type="text" style="margin-bottom:8px"/>
+
+    <div class="cam-setup-step">🔑 كلمة المرور</div>
+    <input class="cam-ip-input" id="supPass" placeholder="كلمة مرور المشرف" type="text" style="margin-bottom:12px"/>
+
+    <div class="cam-setup-step" style="margin-bottom:8px">🎛️ الصلاحيات - اختر ما يقدر يعمله المشرف</div>
+
+    <!-- قسم التحصيل -->
+    <div style="font-size:11px;color:#ffa726;font-weight:700;margin-bottom:5px;padding-right:2px">💰 التحصيل والسكان</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+      <label class="perm-label">
+        <input type="checkbox" id="perm_collection" checked style="accent-color:#4fc3f7">
+        <span>📋 تحصيل الإيجارات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_add_resident" checked style="accent-color:#4fc3f7">
+        <span>➕ إضافة سكان</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_del_resident" checked style="accent-color:#ef5350">
+        <span>🗑 حذف سكان</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_edit_resident" checked style="accent-color:#4fc3f7">
+        <span>✏️ تعديل بيانات سكان</span>
+      </label>
+    </div>
+
+    <!-- قسم المالية -->
+    <div style="font-size:11px;color:#ffa726;font-weight:700;margin-bottom:5px;padding-right:2px">🏦 المالية</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+      <label class="perm-label">
+        <input type="checkbox" id="perm_view_expenses" checked style="accent-color:#4fc3f7">
+        <span>👁 عرض المصروفات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_add_expenses" checked style="accent-color:#4fc3f7">
+        <span>➕ إضافة مصروفات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_fund" checked style="accent-color:#4fc3f7">
+        <span>🏦 الصندوق والحسابات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_reports" checked style="accent-color:#4fc3f7">
+        <span>📄 التقارير</span>
+      </label>
+    </div>
+
+    <!-- قسم أخرى -->
+    <div style="font-size:11px;color:#ffa726;font-weight:700;margin-bottom:5px;padding-right:2px">📱 أخرى</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
+      <label class="perm-label">
+        <input type="checkbox" id="perm_cameras" checked style="accent-color:#4fc3f7" onchange="renderSupCamList()">
+        <span>📷 مشاهدة الكاميرات</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_whatsapp" style="accent-color:#4fc3f7">
+        <span>📱 إرسال واتساب</span>
+      </label>
+    </div>
+
+    <!-- اختيار كاميرات المشرف -->
+    <div id="supCamSection">
+      <div style="font-size:11px;color:#4fc3f7;font-weight:700;margin-bottom:6px">📷 حدد الكاميرات التي يشوفها المشرف</div>
+      <div id="supCamList" style="display:grid;gap:5px;margin-bottom:10px"></div>
+    </div>
+
+    <button class="btn" style="width:100%;background:linear-gradient(135deg,#0288d1,#006064)" onclick="addSupervisor()">💾 إضافة المشرف</button>
+  </div>
+
+  <!-- قائمة المشرفين -->
+  <div id="supList"></div>
+
+</div>
+
+</div><!-- end content -->
+</div><!-- end mainApp -->
+
+<!-- RESIDENT MODAL -->
+<div class="modal-overlay" id="residentModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">إضافة ساكن</div>
+    <label>الاسم *</label><input id="mName" placeholder="اسم الساكن"/>
+    <label>كود الشقة *</label><input id="mCode" type="number" placeholder="مثال: 21"/>
+    <label>الدور *</label><input id="mFloor" type="number" placeholder="مثال: 3" min="1" max="20"/>
+    <label>رقم الواتساب</label><input id="mPhone" type="tel" placeholder="مثال: 201012345678"/>
+    <div class="modal-btns">
+      <button class="btn" onclick="saveResident()">💾 حفظ</button>
+      <button class="btn btn-red" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACCOUNT DETAIL MODAL -->
+<div class="modal-overlay" id="accountModal">
+  <div class="modal">
+    <div class="modal-title" id="accountModalTitle">كشف حساب</div>
+    <div id="accountModalContent"></div>
+    <div class="modal-btns">
+      <button class="btn btn-orange" onclick="printAccountStatement()">🖨️ طباعة</button>
+      <button class="btn btn-red" onclick="document.getElementById('accountModal').classList.remove('open')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MAINTENANCE = 500;
+const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+const INSTAPAY = 'ahmedharby1990@instapay';
+const VODAFONE = '01023399883';
+const INSTAPAY_LINK = 'https://ipn.eg/S/ahmedharby1990/instapay/8XixmW';
+
+const DEFAULT_RESIDENTS = [
+  {id:1,code:11,name:"",floor:1,phone:""},{id:2,code:21,name:"أحمد بدر",floor:1,phone:"01099906909"},
+  {id:3,code:22,name:"",floor:1,phone:""},{id:4,code:41,name:"سامح ربيع",floor:1,phone:"01151305342"},
+  {id:5,code:51,name:"إيهاب صالح",floor:1,phone:"01111555418"},
+  {id:6,code:12,name:"أحمد عبدالفتاح",floor:2,phone:"01147270670"},{id:7,code:22,name:"محمد محمود مبروك",floor:2,phone:"01210700006"},
+  {id:8,code:32,name:"",floor:2,phone:""},{id:9,code:42,name:"سالم قطب",floor:2,phone:"01013747390"},
+  {id:10,code:13,name:"هدى أحمد أسعد",floor:3,phone:"01111521594"},{id:11,code:23,name:"جهاد عطاالله ياسين",floor:3,phone:"01017579923"},
+  {id:12,code:33,name:"علاء عطاالله",floor:3,phone:"01098119788"},{id:13,code:43,name:"عطاالله علاء",floor:3,phone:"01017579923"},
+  {id:14,code:53,name:"",floor:3,phone:""},
+  {id:15,code:14,name:"أحمد سمير",floor:4,phone:"01033484245"},{id:16,code:24,name:"محمد عادل شوقي",floor:4,phone:"01145413717"},
+  {id:17,code:34,name:"",floor:4,phone:""},{id:18,code:44,name:"رضا سليم",floor:4,phone:"01158964003"},
+  {id:19,code:15,name:"وفاء خليفة (أبوكرم السوري)",floor:5,phone:""},{id:20,code:25,name:"أحمد ياقوت",floor:5,phone:"01140780313"},
+  {id:21,code:35,name:"",floor:5,phone:""},{id:22,code:45,name:"",floor:5,phone:""},{id:23,code:55,name:"حسام حلمي",floor:5,phone:"96566409106"},
+  {id:24,code:16,name:"أميرة إسماعيل حجازي",floor:6,phone:"01003818190"},{id:25,code:26,name:"أحمد نبيل",floor:6,phone:"01063888872"},
+  {id:26,code:36,name:"سليمان علاء",floor:6,phone:"01279888337"},{id:27,code:46,name:"محمد شومان",floor:6,phone:"01030304628"},
+  {id:28,code:17,name:"علاء نور الدين",floor:7,phone:"01145459212"},{id:29,code:27,name:"خالد محمد (أسامة صالح)",floor:7,phone:""},
+  {id:30,code:37,name:"محمد عبدالرحمن",floor:7,phone:"01099776737"},{id:31,code:47,name:"",floor:7,phone:""},{id:32,code:57,name:"",floor:7,phone:""},
+  {id:33,code:18,name:"أحمد عباس",floor:8,phone:"01110448999"},{id:34,code:28,name:"",floor:8,phone:""},
+  {id:35,code:38,name:"أميرة محسن عبدالغفار",floor:8,phone:"01006750576"},{id:36,code:48,name:"إبراهيم عبدالحميد",floor:8,phone:"01001789905"},
+  {id:37,code:19,name:"محمود أبو غدير",floor:9,phone:"01144021495"},{id:38,code:29,name:"",floor:9,phone:""},
+  {id:39,code:39,name:"عبدالرحيم المنصوري",floor:9,phone:"01090490030"},{id:40,code:49,name:"ممدوح عبدالرحيم المنصوري",floor:9,phone:"01090490030"},
+  {id:41,code:59,name:"علاء الصوري",floor:9,phone:"01001826083"},
+  {id:42,code:69,name:"أميرة لطفي مصيلحي",floor:10,phone:"01147038899"},{id:43,code:210,name:"مصطفى أحمد توفيق (أبو هيبه)",floor:10,phone:"01064331482"},
+  {id:44,code:62,name:"ياسر سعيد",floor:10,phone:"01096621120"},{id:45,code:63,name:"عمرو مصطفى",floor:10,phone:"01003801280"},
+  {id:46,code:64,name:"خالد (أم علي)",floor:11,phone:"01117729213"},{id:47,code:65,name:"إبراهيم سمير",floor:11,phone:"01121786804"},
+  {id:48,code:66,name:"فادي أبو سلطان",floor:11,phone:"01112523105"},{id:49,code:67,name:"",floor:11,phone:""},
+  {id:50,code:68,name:"فاطمة عبدالعاطي",floor:11,phone:"01067505520"},
+  {id:51,code:69,name:"سعيد السبعاوي",floor:12,phone:"01030110154"},{id:52,code:70,name:"أحمد حربي عوض - سارة أحمد",floor:12,phone:"01023399883"},
+  {id:53,code:71,name:"عبدالله أبو العز",floor:12,phone:"01005057404"},{id:54,code:72,name:"مدام أمل (أم جيلان)",floor:12,phone:"01156665816"},
+  {id:55,code:73,name:"محمد فاضل",floor:13,phone:"218914655882"},{id:56,code:74,name:"عاصم عبيد",floor:13,phone:"01100343934"},
+  {id:57,code:75,name:"حسين حسين",floor:13,phone:"01220122336"},{id:58,code:76,name:"نصر حسين أبو العز",floor:13,phone:"01007201987"},
+  {id:59,code:79,name:"تامر سعد اليمني",floor:13,phone:"966542796166"},
+  {id:60,code:80,name:"أم علي",floor:14,phone:""},{id:61,code:214,name:"حسن حسني",floor:14,phone:"01155537405"},
+  {id:62,code:82,name:"محمد الششتاوي",floor:14,phone:""},{id:63,code:83,name:"أبوكريم",floor:14,phone:""}
+];
+
+// STATE
+let residents=[], payments={}, expenses={}, nextId=100, currentRole='user', currentTab='collection', editingId=null, currentSupervisorPerms={}, currentResidentId=null, currentResidentPerms={};
+let selectedAccountId=null;
+const now=new Date(); let selMonth=now.getMonth(), selYear=now.getFullYear();
+
+// FIREBASE
+const firebaseConfig={apiKey:"AIzaSyCSeybomD3gVRMo-1B0A19T5eJeW3zS4WA",authDomain:"yunaniya5-b5448.firebaseapp.com",databaseURL:"https://yunaniya5-b5448-default-rtdb.firebaseio.com",projectId:"yunaniya5-b5448",storageBucket:"yunaniya5-b5448.firebasestorage.app",messagingSenderId:"604387029178",appId:"1:604387029178:web:af933da06c8e8a68b9f8b6"};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.database();
+
+function showLoading(m){
+  // Don't show loading if login or payment screen is visible
+  const login=document.getElementById('loginScreen');
+  const payment=document.getElementById('paymentScreen');
+  if(login&&login.style.display!=='none') return;
+  if(payment&&payment.style.display==='flex') return;
+  const lo=document.getElementById('loadingOverlay');lo.style.display='flex';document.getElementById('loadingMsg').textContent=m||'جاري التحميل...'}
+function hideLoading(){document.getElementById('loadingOverlay').style.display='none'}
+
+function mk(){return selYear+'-'+selMonth}
+
+// LOAD
+function load(){
+  showLoading('جاري تحميل البيانات...');
+  return db.ref('yg5').once('value').then(snap=>{
+    const data=snap.val();
+    if(data){
+      payments=data.payments||{};
+      expenses=data.expenses||{};
+      nextId=data.nextId||100;
+      // Load fund opening balance
+      if(data.fundOpening!==undefined){
+        window._fundOpening=data.fundOpening;
+        localStorage.setItem('yg5_fund_opening',String(data.fundOpening));
+      }
+      if(data.residents&&data.residents.length>0){
+        // Use Firebase data as-is - don't re-add deleted residents from defaults
+        // Only update phone numbers if missing
+        const defMap={};
+        DEFAULT_RESIDENTS.forEach(r=>defMap[r.id]=r);
+        residents=data.residents.map(r=>
+          (defMap[r.id]&&!r.phone)?{...r,phone:defMap[r.id].phone}:r
+        );
+        // DON'T add back deleted residents from DEFAULT_RESIDENTS
+      } else {
+        residents=JSON.parse(JSON.stringify(DEFAULT_RESIDENTS));
+      }
+    } else {
+      residents=JSON.parse(JSON.stringify(DEFAULT_RESIDENTS));
+      payments={}; expenses={}; nextId=100;
+    }
+    hideLoading();
+    if(!document.getElementById('selMonth').options.length) initSelectors();
+    if(currentRole==='admin'){
+      document.getElementById('mainApp').style.display='block';
+      setTimeout(applyRole,50);
+    } else {
+      render();
+    }
+  }).catch(()=>{
+    try{
+      const r=localStorage.getItem('yg5_residents');
+      const p=localStorage.getItem('yg5_payments');
+      const e=localStorage.getItem('yg5_expenses');
+      residents=r?JSON.parse(r):JSON.parse(JSON.stringify(DEFAULT_RESIDENTS));
+      payments=p?JSON.parse(p):{};
+      expenses=e?JSON.parse(e):{};
+    }catch(e2){residents=JSON.parse(JSON.stringify(DEFAULT_RESIDENTS));payments={};expenses={}}
+    hideLoading();
+    if(!document.getElementById('selMonth').options.length) initSelectors();
+    if(currentRole==='admin'){
+      document.getElementById('mainApp').style.display='block';
+      setTimeout(applyRole,50);
+    } else {
+      render();
+    }
+  });
+}
+
+let saveTimer=null;
+function save(){
+  try{localStorage.setItem('yg5_residents',JSON.stringify(residents));localStorage.setItem('yg5_payments',JSON.stringify(payments));localStorage.setItem('yg5_expenses',JSON.stringify(expenses))}catch(e){}
+  if(saveTimer)clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{
+    db.ref('yg5').set({residents,payments,expenses,nextId}).then(()=>{
+      const b=document.getElementById('syncBadge');
+      b.style.display='block';b.style.animation='none';
+      setTimeout(()=>{b.style.animation='fadeInOut 2s ease forwards'},10);
+      setTimeout(()=>{b.style.display='none'},2100);
+    }).catch(err=>console.error(err));
+  },800);
+}
+
+// HELPERS
+function isPaid(id){return !!(payments[mk()]&&payments[mk()][id])}
+function getDeviceId(){let d=localStorage.getItem('yg5_device_id');if(!d){d='dev_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('yg5_device_id',d)}return d}
+function hasDevicePaidAny(){const k=mk(),prefix='yg5_paid_'+k+'_';for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key&&key.startsWith(prefix)&&localStorage.getItem(key)==='1')return true}return false}
+function hasDevicePaid(id){return localStorage.getItem('yg5_paid_'+mk()+'_'+id)==='1'||isPaid(id)}
+function markDevicePaid(id){localStorage.setItem('yg5_paid_'+mk()+'_'+id,'1')}
+
+// DEBT: how many months unpaid × 500
+function getDebt(resId){
+  return getOverdueMonths(resId)*MAINTENANCE;
+}
+
+function getOverdueMonths(resId){
+  if(!residents.find(r=>r.id===resId&&r.name)) return 0;
+  const now=new Date();
+  const nowVal=now.getFullYear()*12+now.getMonth();
+  let months=0;
+  Object.keys(payments).forEach(k=>{
+    const parts=k.split('-');
+    if(parts.length!==2) return;
+    const ky=parseInt(parts[0]), km=parseInt(parts[1]);
+    if(isNaN(ky)||isNaN(km)) return;
+    const kVal=ky*12+km;
+    if(kVal<=nowVal && !(payments[k]||{})[resId]) months++;
+  });
+  return months;
+}
+
+function logAction(action,name,code){
+  db.ref('yg5_log/'+mk()).push({action,name,code,device:getDeviceId().substr(0,12),time:new Date().toLocaleString('ar-EG'),ts:Date.now()}).catch(()=>{});
+}
+
+// STATS
+function getStats(){
+  const occupied=residents.filter(r=>r.name);
+  const paid=occupied.filter(r=>isPaid(r.id)).length;
+  const collected=paid*MAINTENANCE;
+  const exps=(expenses[mk()]||[]).reduce((s,e)=>s+Number(e.amount),0);
+  return{total:occupied.length,paid,unpaid:occupied.length-paid,collected,exps,balance:collected-exps};
+}
+
+// SELECTORS
+function initSelectors(){
+  const ms=document.getElementById('selMonth'),ys=document.getElementById('selYear');
+  MONTHS.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;if(i===selMonth)o.selected=true;ms.appendChild(o)});
+  for(let y=2026;y<=2060;y++){const o=document.createElement('option');o.value=y;o.textContent=y;if(y===selYear)o.selected=true;ys.appendChild(o);}
+  ms.onchange=()=>{selMonth=Number(ms.value);render()};
+  ys.onchange=()=>{selYear=Number(ys.value);render()};
+  refreshFloorFilter();
+}
+
+function refreshFloorFilter(){
+  const fs=document.getElementById('filterFloor');const cur=fs.value;
+  fs.innerHTML='<option value="all">كل الأدوار</option>';
+  [...new Set(residents.map(r=>r.floor))].sort((a,b)=>a-b).forEach(f=>{const o=document.createElement('option');o.value=f;o.textContent='دور '+f;fs.appendChild(o)});
+  fs.value=cur;
+}
+
+// RENDER STATS
+function renderStats(){
+  const s=getStats();const total=s.total*MAINTENANCE;const pct=total?Math.round((s.collected/total)*100):0;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value" style="color:#66bb6a">${s.paid}</div><div class="stat-label">دفعوا</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" style="color:#ef5350">${s.unpaid}</div><div class="stat-label">لم يدفعوا</div></div>
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" style="color:#4fc3f7">${s.total}</div><div class="stat-label">إجمالي</div></div>
+    <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-value" style="color:#ffa726">${s.collected.toLocaleString()}</div><div class="stat-label">محصّل ج</div></div>
+    <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-value" style="color:#ab47bc">${s.exps.toLocaleString()}</div><div class="stat-label">مصروفات ج</div></div>
+    <div class="stat-card"><div class="stat-icon">🏦</div><div class="stat-value" style="color:${s.balance>=0?'#66bb6a':'#ef5350'}">${s.balance.toLocaleString()}</div><div class="stat-label">رصيد الشهر ج</div></div>`;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressLabel').textContent=pct+'% من المتوقع ('+total.toLocaleString()+' ج)';
+  // Day 5 reminder
+  const today=new Date();
+  const banner=document.getElementById('reminderBanner');
+  if(currentRole==='admin'&&today.getDate()>=5){
+    const unpaidCount=residents.filter(r=>r.name&&!isPaid(r.id)).length;
+    if(unpaidCount>0){
+      banner.innerHTML=`<div class="alert-banner warning">⚠️ تذكير: ${unpaidCount} شقة لم تدفع بعد هذا الشهر - اضغط تبويب واتساب لإرسال تذكيرات</div>`;
+    } else banner.innerHTML='';
+  } else banner.innerHTML='';
+}
+
+// RENDER COLLECTION
+function renderCollection(){
+  const ff=document.getElementById('filterFloor').value;
+  const fs=document.getElementById('filterStatus').value;
+  const floors=[...new Set(residents.map(r=>r.floor))].sort((a,b)=>a-b);
+  let html='';
+  floors.forEach(floor=>{
+    if(ff!=='all'&&Number(ff)!==floor)return;
+    const list=residents.filter(r=>{
+      if(r.floor!==floor)return false;
+      if(!r.name)return false; // hide empty from all users
+      const p=isPaid(r.id);
+      if(fs==='paid'&&!p)return false;
+      if(fs==='unpaid'&&p)return false;
+      const od=getOverdueMonths(r.id);
+      if(fs==='overdue'&&od<2)return false;
+      return true;
+    });
+    if(!list.length)return;
+    html+='<div class="floor-label">الدور '+floor+'</div>';
+    list.forEach(r=>{
+      const p=isPaid(r.id);
+      const od=getOverdueMonths(r.id);
+      const debt=od*MAINTENANCE;
+      const deviceDoneAny=hasDevicePaidAny();
+      let btnHtml='';
+      const isResidentSelf = currentRole==='resident_user' && r.id===currentResidentId;
+      const canToggle = currentRole==='admin' || (currentRole==='supervisor' && currentSupervisorPerms.collection);
+      if(canToggle){
+        btnHtml=`<button class="pay-btn ${p?'paid':''}" onclick="togglePaid(${r.id})">${p?'✓ تم':'دفع'}</button>`;
+      } else if(currentRole==='user' || isResidentSelf) {
+        if(p&&hasDevicePaid(r.id)){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
+        else if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.7">✓ تم الدفع</button>`;}
+        else if(deviceDoneAny){btnHtml=`<button class="pay-btn" disabled style="opacity:.35;cursor:not-allowed;font-size:11px">🔒 مسجّل</button>`;}
+        else{btnHtml=`<button class="pay-btn" onclick="this.disabled=true;this.textContent='...';userPay(${r.id})">تسجيل دفع</button>`;}
+      } else if(currentRole==='resident_user' && r.id===currentResidentId) {
+        if(p&&hasDevicePaid(r.id)){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
+        else if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.7">✓ تم الدفع</button>`;}
+        else if(deviceDoneAny){btnHtml=`<button class="pay-btn" disabled style="opacity:.35;cursor:not-allowed;font-size:11px">🔒 مسجّل</button>`;}
+        else{btnHtml=`<button class="pay-btn" onclick="document.getElementById('paymentScreen').style.display='flex'">💳 ادفع</button>`;}
+      } else if(currentRole==='resident_user') {
+        if(r.id===currentResidentId){
+          // الساكن الفردي - نتجاهل فحص الجهاز ونعتمد على id فقط
+          if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
+          else{btnHtml=`<button class="pay-btn" onclick="document.getElementById('paymentScreen').style.display='flex'">💳 ادفع</button>`;}
+        } else {
+          if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.4">✓ دفع</button>`;}
+          else{btnHtml=`<button class="pay-btn" disabled style="opacity:.2;cursor:default;font-size:11px">لم يدفع</button>`;}
+        }
+      }
+      html+=`<div class="r-card ${p?'paid':od>=2?'overdue2':''}">
+        <div style="flex:1">
+          <div class="r-name">${r.name}${od>=2?` <span style="font-size:10px;color:#ef5350">⚠️ ${od} شهور</span>`:''}</div>
+          <div class="r-meta">شقة ${r.code} • دور ${r.floor}</div>
+          ${r.phone?'<div class="r-phone">📱 '+r.phone+'</div>':''}
+          ${debt>0&&currentRole==='admin'?'<div class="r-debt">مديونية: '+debt.toLocaleString()+' ج</div>':''}
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          ${p?'<span style="font-size:11px;color:#66bb6a;font-weight:700">'+MAINTENANCE+'ج</span>':''}
+          ${btnHtml}
+        </div>
+      </div>`;
+    });
+    // Show empty units for admin only
+    if(currentRole==='admin'){
+      const emptyList=residents.filter(r=>r.floor===floor&&!r.name&&(ff==='all'||Number(ff)===floor));
+      emptyList.forEach(r=>{
+        html+=`<div class="r-card" style="opacity:.35;border-style:dashed">
+          <div><div class="r-name" style="color:#546e7a;font-style:italic">شقة فاضية</div><div class="r-meta">كود ${r.code}</div></div>
+          <span style="font-size:10px;color:#546e7a">غير مسكونة</span></div>`;
+      });
+    }
+  });
+  document.getElementById('residentList').innerHTML=html||'<div class="empty">لا توجد نتائج</div>';
+}
+
+// PAY FUNCTIONS
+function togglePaid(id){
+  if(currentRole!=='admin')return;
+  const k=mk();if(!payments[k])payments[k]={};
+  payments[k][id]=!payments[k][id];
+  save();render();
+}
+
+function userPay(id){
+  if(hasDevicePaidAny()){alert('⚠️ سبق تسجيل دفع من هذا الجهاز هذا الشهر\nكل جهاز يسجل مرة واحدة فقط');render();return}
+  if(isPaid(id)){alert('⚠️ هذه الشقة تم تسجيل دفعها بالفعل');render();return}
+  const r=residents.find(x=>x.id===id);if(!r)return;
+  if(!confirm('تأكيد تسجيل دفع '+MAINTENANCE+' جنيه عن شقة '+r.code+' - '+r.name+'؟'))return;
+  markDevicePaid(id);
+  const k=mk();if(!payments[k])payments[k]={};
+  payments[k][id]=true;
+  logAction('دفع',r.name,r.code);
+  save();render();
+}
+
+// EXPENSES
+function addExpense(){
+  if(currentRole!=='admin')return;
+  const label=document.getElementById('expLabel').value.trim();
+  const amount=document.getElementById('expAmount').value.trim();
+  if(!label||!amount)return;
+  const k=mk();if(!expenses[k])expenses[k]=[];
+  expenses[k].push({id:Date.now(),label,amount:Number(amount)});
+  save();document.getElementById('expLabel').value='';document.getElementById('expAmount').value='';
+  renderExpenses();renderStats();
+}
+function removeExpense(id){
+  if(currentRole!=='admin')return;
+  const k=mk();expenses[k]=(expenses[k]||[]).filter(e=>e.id!==id);
+  save();renderExpenses();renderStats();
+}
+function renderExpenses(){
+  const list=expenses[mk()]||[];const s=getStats();let html='';
+  if(!list.length){html='<div class="empty">لا توجد مصروفات لهذا الشهر</div>';}
+  else{
+    list.forEach(e=>{html+=`<div class="exp-item"><div style="font-weight:600;font-size:13px">${e.label}</div>
+      <div style="display:flex;align-items:center;gap:8px"><span class="exp-amt">${Number(e.amount).toLocaleString()} ج</span>
+      ${currentRole==='admin'?'<button class="btn-del" onclick="removeExpense('+e.id+')">حذف</button>':''}</div></div>`;});
+    html+=`<div class="total-row"><span>الإجمالي</span><span style="color:#ab47bc;font-size:16px">${s.exps.toLocaleString()} ج</span></div>`;
+  }
+  document.getElementById('expenseList').innerHTML=html;
+  document.getElementById('summaryBox').innerHTML=`
+    <div class="box-title">📊 ملخص - ${MONTHS[selMonth]} ${selYear}</div>
+    <div class="summary-row"><span>المحصّل</span><span style="color:#ffa726;font-weight:700">${s.collected.toLocaleString()} ج</span></div>
+    <div class="summary-row"><span>المصروفات</span><span style="color:#ab47bc;font-weight:700">${s.exps.toLocaleString()} ج</span></div>
+    <div class="divider"></div>
+    <div class="summary-row"><span style="font-size:15px;font-weight:700">الرصيد</span><span style="color:${s.balance>=0?'#66bb6a':'#ef5350'};font-weight:900;font-size:19px">${s.balance.toLocaleString()} ج</span></div>`;
+}
+
+// WHATSAPP
+function renderWhatsapp(){
+  const today=new Date();
+  const wa5=document.getElementById('wa5Reminder');
+  if(today.getDate()>=5){
+    wa5.innerHTML='<div class="alert-banner warning">📅 اليوم '+today.getDate()+' - حان وقت إرسال تذكيرات الصيانة!</div>';
+  } else {
+    const daysLeft=5-today.getDate();
+    wa5.innerHTML='<div class="alert-banner" style="background:rgba(79,195,247,.1);border-color:rgba(79,195,247,.3);color:#90caf9">⏰ باقي '+daysLeft+' أيام على موعد التذكير (يوم 5)</div>';
+  }
+  const unpaid=residents.filter(r=>r.name&&!isPaid(r.id));
+  let html='';
+  if(!unpaid.length){html='<div class="all-paid">🎉 جميع السكان دفعوا!</div>';document.getElementById('waButtons').innerHTML='';}
+  else{
+    unpaid.sort((a,b)=>a.floor-b.floor).forEach(r=>{
+      const od=getOverdueMonths(r.id);const debt=od*MAINTENANCE;
+      html+=`<div class="unpaid-item ${od>=2?'overdue2':''}">
+        <div>
+          <div style="font-size:13px;font-weight:600">${r.name} ${od>=2?'⚠️':''}</div>
+          <div style="font-size:10px;color:#90caf9">شقة ${r.code} • دور ${r.floor}${debt>0?' • مديونية: '+debt.toLocaleString()+' ج':''}</div>
+        </div>
+        ${r.phone?`<button class="btn btn-green" style="font-size:11px;padding:5px 9px" onclick="sendIndividual(${r.id})">إرسال</button>`:'<span style="font-size:10px;color:#607d8b">بدون رقم</span>'}
+      </div>`;
+    });
+    document.getElementById('waButtons').innerHTML=`<button class="btn btn-green btn-full" onclick="generateMsg()">📋 رسالة جماعية</button>`;
+  }
+  document.getElementById('unpaidList').innerHTML=html;
+}
+
+function formatPhone(p){
+  if(!p)return'';p=p.toString().trim().replace(/\s+/g,'');
+  if(p.startsWith('+'))return p.replace('+','');
+  if(p.startsWith('20')&&p.length===12)return p;
+  if(p.startsWith('0'))return'20'+p.substring(1);
+  return p;
+}
+
+function sendIndividual(id){
+  const r=residents.find(x=>x.id===id);if(!r||!r.phone)return;
+  const od=getOverdueMonths(r.id);const debt=od*MAINTENANCE;
+  const msg=encodeURIComponent(
+    '🏢 *عمارة يونانية 5 - تذكير صيانة*\n\n'+
+    'الأستاذ/ة: '+r.name+'\nشقة: '+r.code+' - الدور '+r.floor+'\n\n'+
+    '📅 شهر: '+MONTHS[selMonth]+' '+selYear+'\n'+
+    '💰 قيمة الصيانة: '+MAINTENANCE+' جنيه'+
+    (debt>0?'\n⚠️ إجمالي المديونية: '+debt.toLocaleString()+' جنيه':'')+
+    '\n\n💳 *طرق الدفع:*\n'+
+    '• InstaPay: '+INSTAPAY+'\n'+
+    '  '+INSTAPAY_LINK+'\n'+
+    '• Vodafone Cash: '+VODAFONE+
+    '\n\nنرجو السداد في أقرب وقت.\nشكراً 🙏'
+  );
+  window.open('https://wa.me/'+formatPhone(r.phone)+'?text='+msg,'_blank');
+}
+
+function generateMsg(){
+  const unpaid=residents.filter(r=>r.name&&!isPaid(r.id)).sort((a,b)=>a.floor-b.floor);
+  const names=unpaid.map(r=>{
+    const od=getOverdueMonths(r.id);const debt=od*MAINTENANCE;
+    return'• '+r.name+' (شقة '+r.code+')'+(debt>0?' - مديونية: '+debt.toLocaleString()+' ج':'');
+  }).join('\n');
+  const msg='🏢 *عمارة يونانية 5 - تذكير صيانة*\n\n📅 شهر: '+MONTHS[selMonth]+' '+selYear+'\n💰 قيمة الصيانة: '+MAINTENANCE+' جنيه\n\nالسادة السكان المطلوب منهم السداد:\n\n'+names+'\n\n💳 *طرق الدفع:*\n• InstaPay: '+INSTAPAY+'\n  '+INSTAPAY_LINK+'\n• Vodafone Cash: '+VODAFONE+'\n\nنرجو السداد في أقرب وقت.\nشكراً 🙏';
+  document.getElementById('msgText').textContent=msg;
+  document.getElementById('msgBox').style.display='block';
+}
+
+function copyMsg(){const txt=document.getElementById('msgText').textContent;copyText(txt)}
+function copyText(txt){
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(()=>alert('✅ تم النسخ!'));}
+  else{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('✅ تم النسخ!');}
+}
+
+// RESIDENTS MGMT
+function renderResidentsMgmt(){
+  // الساكن الفردي يشوف بطاقته هو بس
+  if(currentRole==='resident_user'){
+    const r = residents.find(x=>x.id===currentResidentId);
+    const el = document.getElementById('tab-residents');
+    if(!el) return;
+    if(!r){ el.innerHTML='<div style="text-align:center;padding:30px;color:#546e7a">لم يتم العثور على بياناتك</div>'; return; }
+    const k=mk(); const paid = !!(payments[k]&&payments[k][r.id]);
+    el.innerHTML=`
+      <div style="background:rgba(79,195,247,.06);border:1px solid rgba(79,195,247,.15);border-radius:14px;padding:16px;margin-bottom:10px">
+        <div style="font-size:18px;font-weight:900;color:#e8f4f8;margin-bottom:8px">🏠 ${r.name}</div>
+        <div style="font-size:13px;color:#90caf9;margin-bottom:4px">📍 شقة ${r.code} • الدور ${r.floor}</div>
+        <div style="font-size:13px;color:#90caf9;margin-bottom:12px">${r.phone?'📱 '+r.phone:'📵 بدون رقم'}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:10px;padding:10px 14px">
+          <div>
+            <div style="font-size:12px;color:#546e7a">حالة ${MONTHS[selMonth]} ${selYear}</div>
+            <div style="font-size:15px;font-weight:700;color:${paid?'#66bb6a':'#ef5350'};margin-top:2px">${paid?'✅ تم الدفع':'❌ لم يتم الدفع بعد'}</div>
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#ffa726">${MAINTENANCE} ج</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const floors=[...new Set(residents.map(r=>r.floor))].sort((a,b)=>a-b);let html='';
+  floors.forEach(floor=>{
+    const list=residents.filter(r=>r.floor===floor);
+    html+='<div class="floor-label">الدور '+floor+' ('+list.filter(r=>r.name).length+' مسكونة)</div>';
+    list.forEach(r=>{
+      const isSup2 = currentRole==='supervisor';
+      const p2 = currentSupervisorPerms;
+      const canEdit = currentRole==='admin' || (isSup2 && p2.edit_resident);
+      const canDel  = currentRole==='admin' || (isSup2 && p2.del_resident);
+      const adminBtns = (canEdit||canDel) ? `
+        ${canEdit?`<button class="btn" style="font-size:11px;padding:5px 9px" onclick="openEditModal(${r.id})">تعديل</button>`:''}
+        ${canDel?`<button class="btn-del" onclick="deleteResident(${r.id})">حذف</button>`:''}
+      ` : '';
+      html+=`<div class="r-card">
+        <div><div class="r-name">${r.name||'<em style="color:#546e7a">شقة فاضية</em>'}</div>
+        <div class="r-meta">كود ${r.code} • دور ${r.floor}</div>
+        <div class="r-phone">${r.phone?'📱 '+r.phone:'📵 بدون رقم'}</div></div>
+        <div style="display:flex;gap:5px">${adminBtns}</div></div>`;
+    });
+  });
+  document.getElementById('residentsMgmt').innerHTML=html;
+}
+
+// ACCOUNTS
+function renderAccounts(){
+  const occupied=residents.filter(r=>r.name).sort((a,b)=>a.floor-b.floor||a.code-b.code);
+  let html='';
+  // Total debt summary
+  const totalDebt=occupied.reduce((s,r)=>s+getOverdueMonths(r.id)*MAINTENANCE,0);
+  if(totalDebt>0){
+    html+=`<div class="alert-banner" style="margin-bottom:10px">💳 إجمالي المديونية الكلية للعمارة: <strong>${totalDebt.toLocaleString()} ج</strong></div>`;
+  }
+  occupied.forEach(r=>{
+    const od=getOverdueMonths(r.id);const debt=od*MAINTENANCE;
+    html+=`<div class="stmt-card" onclick="showAccountDetail(${r.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="stmt-name">${r.name}</div>
+          <div class="stmt-meta">شقة ${r.code} • دور ${r.floor}</div>
+          <div class="stmt-meta">${isPaid(r.id)?'✅ دفع هذا الشهر':'⏳ لم يدفع هذا الشهر'}</div>
+        </div>
+        <div style="text-align:left">
+          ${debt>0?`<div class="stmt-debt">${debt.toLocaleString()} ج</div><div style="font-size:10px;color:#ef5350">${od} شهر متأخر</div>`:'<div class="stmt-ok">✓ لا مديونية</div>'}
+          <div style="font-size:10px;color:#90caf9;margin-top:4px">تفاصيل ←</div>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('accountsList').innerHTML=html;
+}
+
+function showAccountDetail(id){
+  const r=residents.find(x=>x.id===id);if(!r)return;
+  selectedAccountId=id;
+  document.getElementById('accountModalTitle').textContent='📒 كشف حساب - '+r.name;
+  const nowVal=new Date().getFullYear()*12+new Date().getMonth();
+  const allKeys=Object.keys(payments).filter(k=>{
+    const[y,m]=k.split('-').map(Number);
+    return y*12+m<=nowVal;
+  }).sort();
+  let html=`<div style="font-size:12px;color:#90caf9;margin-bottom:10px">شقة ${r.code} • دور ${r.floor}${r.phone?' • '+r.phone:''}</div>`;
+  let totalDebt=0,paidMonths=0,unpaidMonths=0;
+  if(!allKeys.length){html+='<div class="empty">لا توجد بيانات بعد</div>';}
+  else{
+    html+='<div style="background:rgba(255,255,255,.03);border-radius:8px;padding:8px;margin-bottom:10px">';
+    allKeys.forEach(k=>{
+      const[y,m]=k.split('-').map(Number);
+      const paid=!!(payments[k]&&payments[k][id]);
+      if(paid)paidMonths++;else{unpaidMonths++;totalDebt+=MAINTENANCE;}
+      html+=`<div class="month-row">
+        <span>${MONTHS[m]} ${y}</span>
+        <span class="${paid?'month-paid':'month-unpaid'}">${paid?'✓ دفع '+MAINTENANCE+' ج':'✗ لم يدفع'}</span>
+      </div>`;
+    });
+    html+='</div>';
+    html+=`<div style="display:flex;gap:8px;margin-top:8px">
+      <div style="flex:1;background:rgba(102,187,106,.1);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:18px;font-weight:900;color:#66bb6a">${paidMonths}</div>
+        <div style="font-size:10px;color:#90caf9">شهر دفع</div>
+      </div>
+      <div style="flex:1;background:rgba(239,83,80,.1);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:18px;font-weight:900;color:#ef5350">${unpaidMonths}</div>
+        <div style="font-size:10px;color:#90caf9">شهر متأخر</div>
+      </div>
+      <div style="flex:1;background:rgba(255,167,38,.1);border-radius:8px;padding:8px;text-align:center">
+        <div style="font-size:18px;font-weight:900;color:#ffa726">${totalDebt.toLocaleString()}</div>
+        <div style="font-size:10px;color:#90caf9">إجمالي المديونية ج</div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('accountModalContent').innerHTML=html;
+  document.getElementById('accountModal').classList.add('open');
+}
+
+function printAccountStatement(){
+  const r=residents.find(x=>x.id===selectedAccountId);if(!r)return;
+  const nowVal=new Date().getFullYear()*12+new Date().getMonth();
+  const allKeys=Object.keys(payments).filter(k=>{
+    const[y,m]=k.split('-').map(Number);
+    return y*12+m<=nowVal;
+  }).sort();
+  let rows='',paidM=0,unpaidM=0,totalDebt=0;
+  allKeys.forEach(k=>{
+    const[y,m]=k.split('-').map(Number);
+    const paid=!!(payments[k]&&payments[k][selectedAccountId]);
+    if(paid)paidM++;else{unpaidM++;totalDebt+=MAINTENANCE;}
+    rows+=`<tr><td>${MONTHS[m]} ${y}</td><td style="color:${paid?'green':'red'};font-weight:bold">${paid?'✓ دفع - '+MAINTENANCE+' ج':'✗ لم يدفع'}</td></tr>`;
+  });
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html dir="rtl"><head><meta charset="UTF-8"><title>كشف حساب - ${r.name}</title>
+  <style>body{font-family:Arial;direction:rtl;padding:20px;font-size:12px}h1{text-align:center;color:#1a3040;font-size:18px}
+  table{width:100%;border-collapse:collapse;margin-top:16px}th{background:#1a3040;color:white;padding:8px}
+  td{padding:7px 8px;border-bottom:1px solid #ddd}tr:nth-child(even) td{background:#f9f9f9}
+  .summary{display:flex;gap:12px;justify-content:center;margin:16px 0;flex-wrap:wrap}
+  .sbox{border:2px solid #1a3040;border-radius:8px;padding:10px 16px;text-align:center}
+  .sbox .v{font-size:22px;font-weight:900}.sbox .l{font-size:10px;color:#555}</style></head>
+  <body><h1>🏢 عمارة يونانية 5</h1>
+  <p style="text-align:center;color:#555">كشف حساب: ${r.name} - شقة ${r.code} - الدور ${r.floor}</p>
+  <div class="summary">
+    <div class="sbox"><div class="v" style="color:green">${paidM}</div><div class="l">شهر دفع</div></div>
+    <div class="sbox"><div class="v" style="color:red">${unpaidM}</div><div class="l">شهر متأخر</div></div>
+    <div class="sbox"><div class="v" style="color:#e65100">${totalDebt.toLocaleString()}</div><div class="l">مديونية (ج)</div></div>
+  </div>
+  <table><tr><th>الشهر</th><th>الحالة</th></tr>${rows}</table>
+  <script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+// FUND
+function getFundOpening(){
+  // Read from memory first (loaded from Firebase)
+  return parseFloat(window._fundOpening||localStorage.getItem('yg5_fund_opening')||'0')||0;
+}
+function saveFundOpening(){
+  const v=parseFloat(document.getElementById('fundOpening').value)||0;
+  window._fundOpening=v;
+  localStorage.setItem('yg5_fund_opening',String(v));
+  // Save to Firebase
+  db.ref('yg5/fundOpening').set(v)
+    .then(()=>{
+      const b=document.getElementById('syncBadge');
+      b.textContent='✓ تم حفظ الرصيد الافتتاحي';
+      b.style.display='block';
+      setTimeout(()=>{b.style.display='none';b.textContent='✓ تم الحفظ';},2500);
+    })
+    .catch(e=>console.error(e));
+  renderFund();
+}
+function getAllMonthKeys(){
+  const k=new Set();
+  const nowDate=new Date().getFullYear()*12+new Date().getMonth();
+  Object.keys(payments).forEach(k2=>{
+    const[y,m]=k2.split('-').map(Number);
+    if(y*12+m<=nowDate) k.add(k2);
+  });
+  Object.keys(expenses).forEach(k2=>{
+    const[y,m]=k2.split('-').map(Number);
+    if(y*12+m<=nowDate) k.add(k2);
+  });
+  return[...k].sort();
+}
+function getMonthBalance(key){
+  const[y,m]=key.split('-').map(Number);
+  const collected=Object.values(payments[key]||{}).filter(Boolean).length*MAINTENANCE;
+  const exps=(expenses[key]||[]).reduce((s,e)=>s+Number(e.amount),0);
+  return{year:y,month:m,collected,exps,balance:collected-exps};
+}
+function renderFund(){
+  const opening=getFundOpening();
+  const openingInput = document.getElementById('fundOpening');
+  if(openingInput && !openingInput.matches(':focus')) openingInput.value=opening||'';
+  const keys=getAllMonthKeys();let html='',running=opening;
+  if(!keys.length&&!opening){html='<div class="empty">لا توجد بيانات بعد</div>';}
+  else{
+    keys.forEach(key=>{
+      const d=getMonthBalance(key);running+=d.balance;
+      const isPos=d.balance>=0;
+      html+=`<div class="fund-month-card ${isPos?'positive':'negative'}">
+        <div class="fmc-month">📅 ${MONTHS[d.month]} ${d.year}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:4px">
+          <div><div style="font-size:12px;color:#ffa726;font-weight:700">↑ ${d.collected.toLocaleString()} ج</div>
+          <div style="font-size:11px;color:#ab47bc">↓ ${d.exps.toLocaleString()} ج</div></div>
+          <div style="text-align:left">
+            <div style="font-size:13px;font-weight:900;color:${isPos?'#66bb6a':'#ef5350'}">${isPos?'+':''}${d.balance.toLocaleString()} ج</div>
+            <div style="font-size:10px;color:#90caf9">متراكم: ${running.toLocaleString()} ج</div>
+          </div>
+        </div>
+      </div>`;
+    });
+  }
+  const fc=running>=0?'#4fc3f7':'#ef5350';
+  document.getElementById('fundTotal').textContent=running.toLocaleString()+' ج';
+  document.getElementById('fundTotal').style.color=fc;
+  document.getElementById('fundSub').textContent='مجموع أرصدة '+keys.length+' شهر';
+  document.getElementById('fundMonthsList').innerHTML=html;
+}
+
+// REPORT
+function renderReportPreview(){
+  const s=getStats();
+  document.getElementById('reportPreview').innerHTML=`<div class="box">
+    <div class="box-title">📊 معاينة - ${MONTHS[selMonth]} ${selYear}</div>
+    <div class="summary-row"><span>الشقق المدفوعة</span><span style="color:#66bb6a;font-weight:700">${s.paid} من ${s.total}</span></div>
+    <div class="summary-row"><span>إجمالي المحصّل</span><span style="color:#ffa726;font-weight:700">${s.collected.toLocaleString()} ج</span></div>
+    <div class="summary-row"><span>إجمالي المصروفات</span><span style="color:#ab47bc;font-weight:700">${s.exps.toLocaleString()} ج</span></div>
+    <div class="divider"></div>
+    <div class="summary-row"><span style="font-weight:700">الرصيد</span><span style="color:${s.balance>=0?'#66bb6a':'#ef5350'};font-weight:900;font-size:18px">${s.balance.toLocaleString()} ج</span></div>
+  </div>`;
+}
+
+function printReport(){
+  const s=getStats();
+  const allOccupied=residents.filter(r=>r.name).sort((a,b)=>a.floor-b.floor||a.code-b.code);
+  const exps=expenses[mk()]||[];const totalExps=exps.reduce((a,e)=>a+Number(e.amount),0);
+  const opening=getFundOpening();const allKeys=getAllMonthKeys();
+  let running=opening,fundRows='';
+  allKeys.forEach(key=>{
+    const d=getMonthBalance(key);running+=d.balance;const isPos=d.balance>=0;
+    fundRows+=`<tr><td>${MONTHS[d.month]} ${d.year}</td><td style="color:#e65100">${d.collected.toLocaleString()} ج</td>
+      <td style="color:#6a1b9a">${d.exps.toLocaleString()} ج</td>
+      <td style="color:${isPos?'#2e7d32':'#c62828'};font-weight:bold">${isPos?'+':''}${d.balance.toLocaleString()} ج</td>
+      <td style="font-weight:bold">${running.toLocaleString()} ج</td></tr>`;
+  });
+  const allRows=allOccupied.map(r=>{
+    const p=isPaid(r.id);const od=getOverdueMonths(r.id);const debt=od*MAINTENANCE;
+    return`<tr><td>${r.floor}</td><td>${r.code}</td><td>${r.name}</td>
+      <td style="color:${p?'green':'red'};font-weight:bold">${p?'✓ دفع - '+MAINTENANCE+' ج':'✗ لم يدفع'}</td>
+      <td style="color:${debt>0?'red':'green'}">${debt>0?debt.toLocaleString()+' ج':'لا مديونية'}</td></tr>`;
+  }).join('');
+  const expRows=exps.map(e=>`<tr><td>${e.label}</td><td>${Number(e.amount).toLocaleString()} ج</td></tr>`).join('');
+  const w=window.open('','_blank','width=800,height=600');
+  w.document.write(`<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="UTF-8"><title>تقرير ${MONTHS[selMonth]} ${selYear}</title>
+  <style>body{font-family:Arial;direction:rtl;color:#222;padding:20px;font-size:12px}
+  h1{text-align:center;color:#1a3040;font-size:20px;margin-bottom:4px}
+  .subtitle{text-align:center;color:#555;margin-bottom:20px;font-size:13px}
+  .stats{display:flex;gap:12px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}
+  .stat{border:2px solid #1a3040;border-radius:8px;padding:10px 18px;text-align:center}
+  .stat .v{font-size:22px;font-weight:900}.stat .l{font-size:10px;color:#555}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px}
+  th{background:#1a3040;color:white;padding:8px;font-size:12px}
+  td{padding:7px 8px;font-size:11px;border-bottom:1px solid #ddd}
+  tr:nth-child(even) td{background:#f9f9f9}
+  h2{color:#1a3040;font-size:14px;margin:16px 0 8px;border-bottom:2px solid #1a3040;padding-bottom:4px}
+  .balance{text-align:center;padding:14px;border:3px solid ${s.balance>=0?'#2e7d32':'#c62828'};border-radius:10px;margin:16px 0}
+  .balance .bv{font-size:28px;font-weight:900;color:${s.balance>=0?'#2e7d32':'#c62828'}}
+  .fund-box{text-align:center;padding:18px;border:3px solid #0288d1;border-radius:10px;margin-top:8px;background:#f0f9ff}
+  .fund-box .fv{font-size:32px;font-weight:900;color:${running>=0?'#0277bd':'#c62828'}}</style></head>
+  <body>
+  <h1>🏢 عمارة يونانية 5</h1>
+  <div class="subtitle">تقرير تحصيل الصيانة - ${MONTHS[selMonth]} ${selYear}</div>
+  <div class="stats">
+    <div class="stat"><div class="v" style="color:#1a3040">${s.total}</div><div class="l">إجمالي الشقق</div></div>
+    <div class="stat"><div class="v" style="color:green">${s.paid}</div><div class="l">دفعوا</div></div>
+    <div class="stat"><div class="v" style="color:red">${s.unpaid}</div><div class="l">لم يدفعوا</div></div>
+    <div class="stat"><div class="v" style="color:#e65100">${s.collected.toLocaleString()}</div><div class="l">محصّل (ج)</div></div>
+    <div class="stat"><div class="v" style="color:#6a1b9a">${totalExps.toLocaleString()}</div><div class="l">مصروفات (ج)</div></div>
+  </div>
+  <h2>📋 كشف السكان مرتب بالأدوار</h2>
+  <table><tr><th>الدور</th><th>كود الشقة</th><th>الاسم</th><th>الحالة</th><th>المديونية</th></tr>${allRows}</table>
+  ${exps.length?`<h2>💰 مصروفات الشهر</h2><table><tr><th>البيان</th><th>المبلغ</th></tr>${expRows}<tr><td style="font-weight:bold">الإجمالي</td><td style="font-weight:bold;color:#6a1b9a">${totalExps.toLocaleString()} ج</td></tr></table>`:''}
+  <div class="balance"><div style="font-size:13px;color:#555">رصيد شهر ${MONTHS[selMonth]} ${selYear}</div><div class="bv">${s.balance.toLocaleString()} جنيه</div></div>
+  ${allKeys.length?`<h2>🏦 صندوق العمارة التراكمي</h2>
+  <table><tr><th>الشهر</th><th>المحصّل</th><th>المصروفات</th><th>رصيد الشهر</th><th>الرصيد المتراكم</th></tr>
+  ${opening?`<tr><td colspan="4" style="font-style:italic;color:#555">رصيد افتتاحي</td><td style="font-weight:bold">${opening.toLocaleString()} ج</td></tr>`:''}
+  ${fundRows}</table>
+  <div class="fund-box"><div style="font-size:13px;color:#555;margin-bottom:6px">💰 إجمالي صندوق العمارة حتى الآن</div>
+  <div class="fv">${running.toLocaleString()} جنيه</div></div>`:''}
+  <script>window.onload=()=>window.print()<\/script></body></html>`);
+  w.document.close();
+}
+
+// LOG
+function renderLog(){
+  db.ref('yg5_log/'+mk()).orderByChild('ts').limitToLast(100).once('value').then(snap=>{
+    const data=snap.val();
+    if(!data){document.getElementById('logList').innerHTML='<div class="empty">لا توجد عمليات مسجلة</div>';return}
+    const entries=Object.values(data).sort((a,b)=>b.ts-a.ts);
+    document.getElementById('logList').innerHTML=entries.map(e=>`
+      <div style="padding:10px 12px;background:rgba(255,255,255,.04);border-radius:8px;margin-bottom:6px;border:1px solid rgba(255,255,255,.08)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:13px;font-weight:700;color:#4fc3f7">✅ ${e.action}</div>
+          <div style="font-size:12px;margin-top:2px">${e.name} - شقة ${e.code}</div></div>
+          <div style="text-align:left"><div style="font-size:10px;color:#90caf9">${e.time}</div>
+          <div style="font-size:10px;color:#546e7a">جهاز: ${e.device}</div></div>
+        </div>
+      </div>`).join('');
+  }).catch(()=>{document.getElementById('logList').innerHTML='<div class="empty">خطأ في التحميل</div>'});
+}
+
+// MODAL
+function openAddModal(){if(currentRole!=='admin'&&!(currentRole==='supervisor'&&currentSupervisorPerms.add_resident))return;editingId=null;document.getElementById('modalTitle').textContent='➕ إضافة ساكن';['mName','mCode','mFloor','mPhone'].forEach(id=>document.getElementById(id).value='');document.getElementById('residentModal').classList.add('open')}
+function openEditModal(id){if(currentRole!=='admin'&&!(currentRole==='supervisor'&&currentSupervisorPerms.edit_resident))return;const r=residents.find(x=>x.id===id);if(!r)return;editingId=id;document.getElementById('modalTitle').textContent='✏️ تعديل';document.getElementById('mName').value=r.name;document.getElementById('mCode').value=r.code;document.getElementById('mFloor').value=r.floor;document.getElementById('mPhone').value=r.phone||'';document.getElementById('residentModal').classList.add('open')}
+function closeModal(){document.getElementById('residentModal').classList.remove('open')}
+function saveResident(){
+  if(currentRole!=='admin')return;
+  const name=document.getElementById('mName').value.trim();
+  const code=parseInt(document.getElementById('mCode').value);
+  const floor=parseInt(document.getElementById('mFloor').value);
+  const phone=document.getElementById('mPhone').value.trim();
+  if(!code||!floor){alert('الرجاء إدخال كود الشقة والدور');return}
+  if(editingId){residents=residents.map(r=>r.id===editingId?{...r,name,code,floor,phone}:r);}
+  else{residents.push({id:nextId++,code,name,floor,phone})}
+  save();closeModal();refreshFloorFilter();render();
+}
+function deleteResident(id){
+  if(currentRole!=='admin'&&!(currentRole==='supervisor'&&currentSupervisorPerms.del_resident))return;
+  if(!confirm('هل تريد حذف هذا الساكن؟'))return;
+  residents=residents.filter(r=>r.id!==id);
+  // Save everything immediately - no debounce
+  try{localStorage.setItem('yg5_residents',JSON.stringify(residents));}catch(e){}
+  // Cancel any pending save timer and save immediately
+  if(saveTimer)clearTimeout(saveTimer);
+  db.ref('yg5').update({residents:residents})
+    .then(()=>{
+      console.log('✓ Deleted and saved to Firebase');
+      const b=document.getElementById('syncBadge');
+      b.textContent='✓ تم الحذف';
+      b.style.display='block';
+      setTimeout(()=>{b.style.display='none';b.textContent='✓ تم الحفظ';},2000);
+    })
+    .catch(e=>console.error('Delete error:',e));
+  refreshFloorFilter();render();
+}
+
+// AUTH
+
+function checkPass(){
+  const val=document.getElementById('passInput').value.trim();
+  const err=document.getElementById('passErr');
+  if(!val) return;
+
+  function shakeError(msg){
+    err.textContent=msg;
+    document.getElementById('passInput').value='';
+    const box=document.querySelector('.login-box');
+    box.style.transform='translateX(8px)';
+    setTimeout(()=>box.style.transform='translateX(-8px)',80);
+    setTimeout(()=>box.style.transform='translateX(5px)',160);
+    setTimeout(()=>box.style.transform='translateX(0)',240);
+  }
+
+  if(val==='Elaidy'){
+    currentRole='admin'; currentSupervisorName=''; currentResidentId=null; currentResidentPerms={};
+    enterApp(); return;
+  }
+  // كلمة سر عامة محذوفة - كل ساكن له كلمة سر خاصة
+
+  // تحقق من المشرفين أولاً
+  db.ref('yg5_supervisors').once('value').then(snap=>{
+    let found = false;
+    const d = snap.val();
+    if(d){
+      Object.entries(d).forEach(([k,v])=>{
+        if(v.pass===val){
+          found=true;
+          currentRole='supervisor';
+          currentSupervisorName=v.name;
+          currentSupervisorPerms=v.perms||{};
+          currentResidentId=null; currentResidentPerms={};
+          supervisors=[];
+          Object.entries(d).forEach(([k2,v2])=>supervisors.push({...v2,id:k2}));
+        }
+      });
+    }
+    if(found){ enterApp(); return; }
+
+    // تحقق من السكان الفرديين
+    db.ref('yg5_resident_users').once('value').then(snap2=>{
+      let found2=false;
+      const d2=snap2.val();
+      if(d2){
+        Object.entries(d2).forEach(([k,v])=>{
+          if(v.pass===val){
+            found2=true;
+            currentRole='resident_user';
+            currentSupervisorName=v.name;
+            currentResidentId=v.residentId;
+            currentResidentPerms=v.perms||{};
+            supervisors=[];
+          }
+        });
+      }
+      if(found2){ enterApp(); }
+      else { shakeError('❌ كلمة المرور غلط'); }
+    });
+  });
+}
+function enterApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('passErr').textContent='';
+  if(currentRole==='user'){
+    document.getElementById('paymentScreen').style.display='flex';
+    setTimeout(load, 100);
+  } else if(currentRole==='resident_user'){
+    applyRole();
+    if(currentResidentPerms && currentResidentPerms.collection){
+      document.getElementById('paymentScreen').style.display='flex';
+      setTimeout(load, 100);
+    } else {
+      document.getElementById('mainApp').style.display='block';
+      setTimeout(()=>{ load(); applyRole(); }, 100);
+    }
+  } else if(currentRole==='supervisor'){
+    // للمشرف: تحميل صلاحياته من Firebase أولاً ثم applyRole
+    document.getElementById('mainApp').style.display='block';
+    db.ref('yg5_supervisors').once('value').then(snap=>{
+      const d = snap.val();
+      if(d){
+        Object.entries(d).forEach(([k,v])=>{
+          if(v.name===currentSupervisorName){
+            currentSupervisorPerms = v.perms || {};
+          }
+        });
+      }
+      applyRole();
+      load();
+    });
+  } else {
+    // admin
+    applyRole();
+    document.getElementById('mainApp').style.display='block';
+    setTimeout(()=>{ load(); applyRole(); }, 200);
+  }
+}
+
+function enterMainApp(){
+  document.getElementById('paymentScreen').style.display='none';
+  document.getElementById('mainApp').style.display='block';
+
+  // لو ساكن فردي - سجّل دفعه تلقائياً
+  if(currentRole==='resident_user' && currentResidentId){
+    const id = currentResidentId;
+    if(!hasDevicePaidAny() && !isPaid(id)){
+      const r = residents.find(x=>x.id===id);
+      if(r && confirm('تأكيد تسجيل دفع '+MAINTENANCE+' جنيه عن شقة '+r.code+' - '+r.name+'؟')){
+        markDevicePaid(id);
+        const k=mk(); if(!payments[k])payments[k]={};
+        payments[k][id]=true;
+        logAction('دفع',r.name,r.code);
+        save();
+      }
+    }
+  }
+
+  setTimeout(applyRole, 50);
+  render();
+}
+function togglePass(){const i=document.getElementById('passInput');const e=document.querySelector('.eye-btn');if(i.type==='password'){i.type='text';e.textContent='🙈'}else{i.type='password';e.textContent='👁'}}
+
+function applyRole(){
+  const isAdmin  = currentRole==='admin';
+  const isSup    = currentRole==='supervisor';
+  const isRes    = currentRole==='resident_user';
+  const p        = isSup ? currentSupervisorPerms : (isRes ? currentResidentPerms : {});
+
+  // التابات المرئية حسب الدور
+  const tabRules = {
+    'whatsapp':     isAdmin || (isSup && p.whatsapp),
+    'log':          isAdmin,
+    'supervisors':  isAdmin,
+    'resusers':     isAdmin,
+    'cameras':      isAdmin || (isSup && p.cameras) || (isRes && p.cameras),
+    'door':         true,
+    'accounts':     isAdmin || (isSup && p.fund) || (isRes && p.accounts),
+    'fund':         isAdmin || (isSup && p.fund) || (isRes && p.fund),
+    'reports':      isAdmin || (isSup && p.reports) || (isRes && p.reports),
+    'expenses':     isAdmin || (isSup && (p.view_expenses||p.add_expenses)) || (isRes && p.view_expenses),
+    'residents':    isAdmin || isSup || isRes,
+    'cameras':      isAdmin || (isSup && p.cameras) || (isRes && p.cameras),
+    'collection':   isAdmin || isSup || isRes,
+  };
+  document.querySelectorAll('.admin-tab').forEach(el=>{
+    const tabId = el.id ? el.id.replace('tab-btn-','') : '';
+    const show = tabRules.hasOwnProperty(tabId) ? tabRules[tabId] : isAdmin;
+    el.style.setProperty('display', show?'flex':'none', 'important');
+  });
+  document.querySelectorAll('.admin-only').forEach(el=>{
+    el.style.setProperty('display', isAdmin?'':'none', 'important');
+  });
+
+  // زر إضافة سكان
+  const addBtn=document.getElementById('addResidentBtn');
+  if(addBtn) addBtn.style.setProperty('display',(isAdmin||(isSup&&p.add_resident))?'block':'none','important');
+
+  // باقة الدور
+  const badge=document.getElementById('roleBadge');
+  if(badge){
+    if(isAdmin){ badge.textContent='👑 Admin'; badge.style.background='rgba(255,167,38,.2)'; badge.style.color='#ffa726'; }
+    else if(isSup){ badge.textContent='👮 '+currentSupervisorName; badge.style.background='rgba(79,195,247,.15)'; badge.style.color='#4fc3f7'; }
+    else if(isRes){ badge.textContent='🏠 '+currentSupervisorName; badge.style.background='rgba(102,187,106,.15)'; badge.style.color='#66bb6a'; }
+    else { badge.textContent='👤 مستخدم'; badge.style.background='rgba(102,187,106,.15)'; badge.style.color='#66bb6a'; }
+  }
+
+  // لو تاب محجوب انقل للتحصيل
+  const blocked = {
+    'user': ['whatsapp','reports','log','accounts','fund','supervisors'],
+    'supervisor': ['log','supervisors'],
+  };
+  const blockedList = blocked[currentRole] || [];
+  if(blockedList.includes(currentTab)) showTab('collection');
+  else render();
+
+  // تحميل المشرفين للأدمن
+  if(isAdmin){ loadSupervisors(); loadResidentUsers(); }
+}
+
+
+// =====================
+// DOOR MODULE
+// =====================
+let doorSettings = {
+  clientId: 'gfn4jux3rr5fc74mnamk',
+  secret: '7dfaa187d7164de2849eb284d00eb428',
+  deviceId: 'bf975a0b7f1159d9e5u3ln',
+  endpoint: 'https://openapi.tuyaeu.com'
+};
+let doorAllowedResidents = []; // IDs السكان المسموح لهم
+let doorTimerInterval = null;
+
+function loadDoorSettings(){
+  db.ref('yg5_door').once('value').then(snap=>{
+    const d = snap.val();
+    if(d){
+      if(d.settings) doorSettings = {...doorSettings, ...d.settings};
+      if(d.allowed) doorAllowedResidents = d.allowed;
+    }
+    updateDoorUI();
+    renderDoorResidentsList();
+  }).catch(()=>{ updateDoorUI(); });
+}
+
+function saveDoorSettings(){
+  if(currentRole!=='admin') return;
+  const s = {
+    clientId:   document.getElementById('tuyaClientId').value.trim()  || doorSettings.clientId,
+    secret:     document.getElementById('tuyaSecret').value.trim()     || doorSettings.secret,
+    deviceId:   document.getElementById('tuyaDeviceId').value.trim()   || doorSettings.deviceId,
+    vercelUrl:  document.getElementById('vercelUrl').value.trim()      || doorSettings.vercelUrl || '',
+    appSecret:  document.getElementById('appSecret').value.trim()      || 'yunaniya5_door_2025',
+  };
+  doorSettings = s;
+  db.ref('yg5_door/settings').set(s)
+    .then(()=>{ alert('✅ تم حفظ إعدادات الباب!'); })
+    .catch(e=>{ alert('⚠️ خطأ: '+e.message); });
+}
+
+function saveDoorResidents(){
+  if(currentRole!=='admin') return;
+  doorAllowedResidents = [];
+  residents.forEach(r=>{
+    const el = document.getElementById('door_res_'+r.id);
+    if(el && el.checked) doorAllowedResidents.push(r.id);
+  });
+  db.ref('yg5_door/allowed').set(doorAllowedResidents)
+    .then(()=>{ alert('✅ تم حفظ صلاحيات الباب!'); updateDoorUI(); })
+    .catch(e=>{ alert('⚠️ خطأ: '+e.message); });
+}
+
+function canOpenDoor(){
+  if(currentRole==='admin' || currentRole==='supervisor') return true;
+  if(currentRole==='resident_user') return doorAllowedResidents.includes(currentResidentId);
+  return false;
+}
+
+function updateDoorUI(){
+  const allowed = document.getElementById('doorAllowed');
+  const denied  = document.getElementById('doorDenied');
+  if(!allowed || !denied) return;
+  if(canOpenDoor()){
+    allowed.style.display='block';
+    denied.style.display='none';
+  } else {
+    allowed.style.display='none';
+    denied.style.display='block';
+  }
+  // تعبئة إعدادات الأدمن
+  const ciEl = document.getElementById('tuyaClientId');
+  const epEl = document.getElementById('tuyaEndpoint');
+  const diEl = document.getElementById('tuyaDeviceId');
+  if(ciEl)  ciEl.value  = doorSettings.clientId  || '';
+  if(diEl)  diEl.value  = doorSettings.deviceId  || '';
+  const vuEl = document.getElementById('vercelUrl');
+  const asEl = document.getElementById('appSecret');
+  if(vuEl)  vuEl.value  = doorSettings.vercelUrl || '';
+  if(asEl)  asEl.value  = doorSettings.appSecret || 'yunaniya5_door_2025';
+}
+
+function renderDoorResidentsList(){
+  const list = document.getElementById('doorResidentsList');
+  if(!list) return;
+  const named = residents.filter(r=>r.name);
+  list.innerHTML = named.map(r=>`
+    <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 10px;margin-bottom:6px;cursor:pointer">
+      <input type="checkbox" id="door_res_${r.id}" ${doorAllowedResidents.includes(r.id)?'checked':''} style="accent-color:#66bb6a;width:16px;height:16px"/>
+      <span style="flex:1;font-size:13px;color:#e8f4f8">${r.name}</span>
+      <span style="font-size:11px;color:#546e7a">شقة ${r.code}</span>
+    </label>
+  `).join('');
+}
+
+async function getTuyaToken(){
+  const ts = Date.now();
+  const str = doorSettings.clientId + String(ts);
+  const key = await crypto.subtle.importKey('raw',
+    new TextEncoder().encode(doorSettings.secret),
+    {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(str));
+  const sign = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(doorSettings.endpoint + '/v1.0/token?grant_type=1');
+  const resp = await fetch(proxyUrl, {
+    headers: {
+      'client_id': doorSettings.clientId,
+      't': String(ts),
+      'sign_method': 'HMAC-SHA256',
+      'sign': sign,
+      'Content-Type': 'application/json'
+    }
+  });
+  const data = await resp.json();
+  if(data.success) return data.result.access_token;
+  throw new Error(data.msg || 'Token failed');
+}
+
+async function sendDoorCommand(token, value){
+  const ts = Date.now();
+  const path = '/v1.0/iot-03/devices/' + doorSettings.deviceId + '/commands';
+  const body = JSON.stringify({commands:[{code:'switch_1',value:value}]});
+  const bodyHash = await sha256(body);
+  const nl = String.fromCharCode(10);
+  const strToSign = doorSettings.clientId + token + String(ts) + 'POST' + nl + bodyHash + nl + nl + path;
+  const key = await crypto.subtle.importKey('raw',
+    new TextEncoder().encode(doorSettings.secret),
+    {name:'HMAC',hash:'SHA-256'}, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(strToSign));
+  const sign = Array.from(new Uint8Array(sig)).map(b=>b.toString(16).padStart(2,'0')).join('').toUpperCase();
+  const proxyUrl2 = 'https://corsproxy.io/?' + encodeURIComponent(doorSettings.endpoint + path);
+  const resp = await fetch(proxyUrl2, {
+    method: 'POST',
+    headers: {
+      'client_id': doorSettings.clientId,
+      'access_token': token,
+      't': String(ts),
+      'sign_method': 'HMAC-SHA256',
+      'sign': sign,
+      'Content-Type': 'application/json'
+    },
+    body: body
+  });
+  return await resp.json();
+}
+
+async function sha256(message){
+  const data = new TextEncoder().encode(message);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function openDoor(){
+  if(!canOpenDoor()){ alert('⚠️ ليس لديك صلاحية فتح الباب'); return; }
+
+  const btn    = document.getElementById('doorBtn');
+  const status = document.getElementById('doorStatus');
+  const timer  = document.getElementById('doorTimer');
+
+  // منع الضغط المتكرر
+  if(btn.disabled) return;
+  btn.disabled = true;
+  btn.className = 'door-btn door-btn-opening';
+  btn.innerHTML = '⏳ جاري فتح الباب...';
+  status.className = 'door-status loading';
+  status.textContent = 'جاري الاتصال بالنظام...';
+  timer.style.display = 'none';
+  clearInterval(doorTimerInterval);
+
+  try {
+    const vercelUrl = doorSettings.vercelUrl || '';
+    if(!vercelUrl){ throw new Error('لم يتم إعداد رابط الـ Server بعد'); }
+
+    const resp = await fetch(vercelUrl + '/api/open-door', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + (doorSettings.appSecret || 'yunaniya5_door_2025')
+      }
+    });
+
+    const data = await resp.json();
+    if(!data.success) throw new Error(data.msg || 'فشل فتح الباب');
+
+    // عداد 7 ثواني (الباب فتح وسيُغلق تلقائياً بالسيرفر)
+    status.className = 'door-status success';
+    status.textContent = '✅ الباب مفتوح!';
+    btn.innerHTML = '🔓 الباب مفتوح';
+    timer.style.display = 'block';
+
+    let count = 7;
+    timer.textContent = count + 'ث';
+    doorTimerInterval = setInterval(()=>{
+      count--;
+      timer.textContent = count + 'ث';
+      if(count <= 0){
+        clearInterval(doorTimerInterval);
+        timer.style.display = 'none';
+        status.textContent = '🔒 تم إغلاق الباب تلقائياً';
+        status.className = 'door-status';
+        btn.disabled = false;
+        btn.className = 'door-btn door-btn-open';
+        btn.innerHTML = '🔓 فتح باب العمارة';
+      }
+    }, 1000);
+
+    logAction('فتح الباب', currentSupervisorName || 'ساكن', '');
+
+  } catch(err){
+    btn.disabled = false;
+    btn.className = 'door-btn door-btn-open';
+    btn.innerHTML = '🔓 فتح باب العمارة';
+    status.className = 'door-status error';
+    status.textContent = '❌ فشل: ' + (err.message || 'خطأ في الاتصال');
+    timer.style.display = 'none';
+  }
+}
+
+
+async function closeDoorViaProxy(){
+  const prompt = `Control Tuya Smart Switch - turn OFF.
+Endpoint: ${doorSettings.endpoint}
+Client ID: ${doorSettings.clientId}
+Secret: ${doorSettings.secret}
+Device ID: ${doorSettings.deviceId}
+Command: switch_1 = false
+Return JSON: {"success": true/false}`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 200,
+      messages: [{role: 'user', content: prompt}]
+    })
+  });
+  return await resp.json();
+}
+
+// =====================
+// RESET MODULE
+// =====================
+function confirmReset(type){
+  if(currentRole!=='admin'){ alert('⚠️ الأدمن فقط'); return; }
+
+  if(type==='payments'){
+    if(!confirm('⚠️ هل تريد مسح كل بيانات التحصيل والمصروفات والسجل؟\n\nالسكان والإعدادات ستبقى كما هي.')) return;
+    const confirmText = prompt('اكتب "مسح" للتأكيد:');
+    if(confirmText !== 'مسح'){ alert('تم الإلغاء'); return; }
+
+    db.ref('yg5').update({
+      payments: null,
+      expenses: null,
+      log: null,
+      fundOpening: 0
+    }).then(()=>{
+      payments = {};
+      expenses = {};
+      window._fundOpening = 0;
+      localStorage.removeItem('yg5_fund_opening');
+      alert('✅ تم مسح بيانات التحصيل والمصروفات بنجاح!');
+      render();
+    }).catch(e=> alert('⚠️ خطأ: '+e.message));
+
+  } else if(type==='all'){
+    if(!confirm('💥 تحذير: سيتم مسح كل البيانات!\n\nالسكان + التحصيل + المصروفات + السجل + الرصيد الافتتاحي\n\nهل أنت متأكد؟')) return;
+    const confirmText = prompt('اكتب "مسح كامل" للتأكيد:');
+    if(confirmText !== 'مسح كامل'){ alert('تم الإلغاء'); return; }
+
+    db.ref('yg5').set({
+      residents: DEFAULT_RESIDENTS,
+      payments: {},
+      expenses: {},
+      nextId: 100,
+      fundOpening: 0
+    }).then(()=>{
+      residents = [...DEFAULT_RESIDENTS];
+      payments = {};
+      expenses = {};
+      nextId = 100;
+      window._fundOpening = 0;
+      localStorage.clear();
+      alert('✅ تم Reset كامل للتطبيق!');
+      render();
+    }).catch(e=> alert('⚠️ خطأ: '+e.message));
+  }
+}
+
+// =====================
+// CAMERAS MODULE
+// =====================
+
+// الكاميرات الـ 16 - الأدمن يتحكم في أي منها يظهر
+const ALL_CAMERAS = [
+  {ch:1,  name:'مدخل العمارة',   icon:'🚪'},
+  {ch:2,  name:'مدخل السيارات',  icon:'🚗'},
+  {ch:3,  name:'موقف السيارات',  icon:'🅿️'},
+  {ch:4,  name:'المصعد',         icon:'🛗'},
+  {ch:5,  name:'السلم الرئيسي',  icon:'🪜'},
+  {ch:6,  name:'الممر الخلفي',   icon:'🔦'},
+  {ch:7,  name:'سطح العمارة',    icon:'🏠'},
+  {ch:8,  name:'كاميرا 8',       icon:'📷'},
+  {ch:9,  name:'كاميرا 9',       icon:'📷'},
+  {ch:10, name:'كاميرا 10',      icon:'📷'},
+  {ch:11, name:'كاميرا 11',      icon:'📷'},
+  {ch:12, name:'كاميرا 12',      icon:'📷'},
+  {ch:13, name:'كاميرا 13',      icon:'📷'},
+  {ch:14, name:'كاميرا 14',      icon:'📷'},
+  {ch:15, name:'كاميرا 15',      icon:'📷'},
+  {ch:16, name:'كاميرا 16',      icon:'📷'},
+];
+
+let camIp = '192.168.1.2', camPort = '80', camPass = '', camExtIp = '197.45.170.52';
+// visibleCams: مصفوفة من {ch, name, icon, visible}
+let visibleCams = [];
+
+function loadCamSettings(){
+  db.ref('yg5_cam').once('value').then(snap=>{
+    const d = snap.val();
+    if(d){
+      camIp    = d.ip    || '192.168.1.2';
+      camPort  = d.port  || '80';
+      camPass  = d.pass  || '';
+      camExtIp = d.extIp || camExtIp;
+      // تحميل إعدادات الظهور
+      if(d.cams && Array.isArray(d.cams)){
+        visibleCams = d.cams;
+      } else {
+        // افتراضي: CH1 و CH2 فقط مرئيين
+        visibleCams = ALL_CAMERAS.map((c,i)=>({...c, visible: i<2}));
+      }
+    } else {
+      visibleCams = ALL_CAMERAS.map((c,i)=>({...c, visible: i<2}));
+    }
+    updateCamIpDisplay();
+    if(currentTab==='cameras') renderCamGrid();
+  }).catch(()=>{
+    try {
+      const s = localStorage.getItem('yg5_cam_settings');
+      if(s){ const d=JSON.parse(s); camIp=d.ip||'192.168.1.2'; camPort=d.port||'80'; camPass=d.pass||''; }
+    } catch(e){}
+    visibleCams = ALL_CAMERAS.map((c,i)=>({...c, visible: i<2}));
+    updateCamIpDisplay();
+  });
+}
+
+function showSyncCam(msg, ok){
+  const b = document.getElementById('syncBadge');
+  if(b){ b.textContent=msg; b.style.background=ok?'rgba(102,187,106,.9)':'rgba(239,83,80,.9)'; b.style.display='block'; setTimeout(()=>{b.style.display='none';},3000); }
+  alert(msg);
+}
+
+function saveCamSettings(){
+  if(currentRole!=='admin') return;
+  const ip   = document.getElementById('camIpField').value.trim();
+  const pass = document.getElementById('camPassField').value.trim();
+  if(!ip){ alert('الرجاء إدخال عنوان IP'); return; }
+  camIp = ip; camPass = pass; camPort = '80';
+  // لو الـ IP مش محلي، احفظه كـ IP خارجي
+  if(!ip.startsWith('192.168') && !ip.startsWith('10.') && !ip.startsWith('172.')){
+    camExtIp = ip;
+  }
+  const saveData = {ip:camIp, port:camPort, pass:camPass, extIp:camExtIp, cams: visibleCams};
+  db.ref('yg5_cam').set(saveData)
+    .then(()=>{ showSyncCam('✅ تم حفظ إعدادات DVR! IP: '+camIp, true); })
+    .catch((e)=>{ showSyncCam('⚠️ خطأ: '+e.message, false); });
+  try { localStorage.setItem('yg5_cam_settings', JSON.stringify({ip:camIp,port:camPort,pass:camPass})); } catch(e){}
+  updateCamIpDisplay();
+  renderCamGrid();
+}
+
+function saveCamVisibility(){
+  if(currentRole!=='admin') return;
+  // اقرأ الاختيارات الحالية من الـ UI
+  ALL_CAMERAS.forEach(c=>{
+    const chk = document.getElementById('camChk_'+c.ch);
+    const nameInput = document.getElementById('camName_'+c.ch);
+    const idx = visibleCams.findIndex(v=>v.ch===c.ch);
+    if(idx>=0){
+      visibleCams[idx].visible = chk ? chk.checked : false;
+      visibleCams[idx].name    = nameInput ? nameInput.value.trim() || c.name : c.name;
+    } else {
+      visibleCams.push({...c, visible: chk?chk.checked:false, name: nameInput?nameInput.value.trim()||c.name:c.name});
+    }
+  });
+  const saveData = {ip:camIp, port:camPort, pass:camPass, cams: visibleCams};
+  db.ref('yg5_cam').set(saveData)
+    .then(()=>{ showSyncCam('✅ تم حفظ اختيارات الكاميرات!', true); renderCamGrid(); })
+    .catch((e)=>{ showSyncCam('⚠️ خطأ: '+e.message, false); });
+}
+
+function updateCamIpDisplay(){
+  const el = document.getElementById('camIpDisplay');
+  if(el) el.textContent = camIp ? camIp : 'غير محدد';
+  const ipF = document.getElementById('camIpField');
+  const passF = document.getElementById('camPassField');
+  if(ipF) ipF.value = camIp;
+  if(passF) passF.value = camPass;
+  // تحديث الـ IP الخارجي لو اتغير
+  const extEl = document.getElementById('camExtIpDisplay');
+  if(extEl && camExtIp) extEl.textContent = camExtIp;
+}
+
+function getCamUrl(channel){
+  if(!camIp) return '';
+  return `http://admin:${camPass}@${camIp}:${camPort}/doc/page/preview.asp?chno=${channel}`;
+}
+
+function getDvrMainUrl(){
+  if(!camIp) return '';
+  return `http://admin:${camPass}@${camIp}:${camPort}`;
+}
+
+function renderCamControlList(){
+  const list = document.getElementById('camControlList');
+  if(!list) return;
+  list.innerHTML = ALL_CAMERAS.map(c=>{
+    const saved = visibleCams.find(v=>v.ch===c.ch);
+    const isVisible = saved ? saved.visible : false;
+    const savedName = saved ? saved.name : c.name;
+    return `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;background:rgba(255,255,255,.04);border-radius:8px;padding:8px">
+      <input type="checkbox" id="camChk_${c.ch}" ${isVisible?'checked':''} style="width:18px;height:18px;cursor:pointer;accent-color:#66bb6a"/>
+      <span style="font-size:16px">${c.icon}</span>
+      <span style="color:#90caf9;font-size:11px;min-width:28px">CH${c.ch}</span>
+      <input type="text" id="camName_${c.ch}" value="${savedName}"
+        style="flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#e8f4f8;border-radius:6px;padding:5px 8px;font-family:'Cairo',sans-serif;font-size:12px;outline:none"
+        placeholder="${c.name}"/>
+      <button onclick="openCamViewer(${c.ch},'${savedName}')" style="background:rgba(79,195,247,.15);border:1px solid rgba(79,195,247,.3);color:#4fc3f7;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:11px">▶</button>
+    </div>`;
+  }).join('');
+}
+
+function renderCamGrid(){
+  const grid   = document.getElementById('camGrid');
+  const noIp   = document.getElementById('camNoIp');
+
+  // إظهار كل عناصر الأدمن في تاب الكاميرات
+  const isAdmin = currentRole==='admin';
+  document.querySelectorAll('#tab-cameras .cam-admin-section').forEach(el=>{
+    el.style.setProperty('display', isAdmin ? 'block' : 'none', 'important');
+  });
+
+  // رندر لوحة التحكم للأدمن
+  if(isAdmin) renderCamControlList();
+
+  // للسكان العاديين - رسالة قريباً ريثما يجي الـ Pi
+  const comingSoon = document.getElementById('camComingSoon');
+  if(currentRole==='user'){
+    if(comingSoon) comingSoon.style.display='block';
+    if(grid) grid.innerHTML='';
+    return;
+  }
+  if(comingSoon) comingSoon.style.display='none';
+
+  if(!camIp){
+    if(grid) grid.innerHTML='';
+    if(noIp) noIp.style.display='block';
+    return;
+  }
+  if(noIp) noIp.style.display='none';
+
+  // الأدمن يشوف كل الكاميرات المفعّلة + زر لكل الباقية
+  // الساكن يشوف فقط الكاميرات التي فعّلها الأدمن
+  let list;
+  if(currentRole==='admin'){
+    list = ALL_CAMERAS.map(c=>{
+      const saved = visibleCams.find(v=>v.ch===c.ch);
+      return {...c, visible: saved?saved.visible:false, name: saved?saved.name:c.name};
+    });
+  } else if(currentRole==='supervisor'){
+    const camsList = currentSupervisorPerms.cameras_list;
+    if(camsList && camsList.length > 0){
+      // يشوف الكاميرات المحددة له فقط
+      list = ALL_CAMERAS
+        .filter(c => camsList.includes(c.ch))
+        .map(c=>{
+          const saved = visibleCams.find(v=>v.ch===c.ch);
+          return {...c, visible:true, name: saved?saved.name:c.name};
+        });
+    } else {
+      // لو ما فيه قائمة، يشوف المفعّلة للسكان
+      list = visibleCams.filter(c=>c.visible);
+    }
+  } else if(currentRole==='resident_user'){
+    const camsList = currentResidentPerms.cameras_list;
+    if(camsList && camsList.length > 0){
+      list = ALL_CAMERAS
+        .filter(c => camsList.includes(c.ch))
+        .map(c=>{ const saved=visibleCams.find(v=>v.ch===c.ch); return {...c,visible:true,name:saved?saved.name:c.name}; });
+    } else {
+      list = visibleCams.filter(c=>c.visible);
+    }
+  } else if(currentRole==='resident_user'){
+    const camsList2 = currentResidentPerms.cameras_list;
+    if(camsList2 && camsList2.length > 0){
+      list = ALL_CAMERAS
+        .filter(c => camsList2.includes(c.ch))
+        .map(c=>{ const saved=visibleCams.find(v=>v.ch===c.ch); return {...c,visible:true,name:saved?saved.name:c.name}; });
+    } else {
+      list = visibleCams.filter(c=>c.visible);
+    }
+  } else {
+    list = visibleCams.filter(c=>c.visible);
+  }
+
+  if(list.length === 0){
+    if(grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:20px;color:#546e7a;font-size:13px">
+      ${currentRole==='admin' ? '⚠️ لم تفعّل أي كاميرا للسكان بعد' : '📡 لا توجد كاميرات متاحة حالياً'}
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(c=>`
+    <div class="cam-card" onclick="openCamViewer(${c.ch},'${c.name}')" style="${currentRole==='admin' && !c.visible ? 'opacity:.4;' : ''}">
+      <div class="cam-thumb">
+        <div class="cam-live-dot on"></div>
+        <div class="cam-thumb-icon">${c.icon}</div>
+        <div class="cam-thumb-name">CH${c.ch}</div>
+        ${currentRole==='admin' && !c.visible ? '<div style="position:absolute;top:4px;left:4px;background:rgba(239,83,80,.7);border-radius:4px;font-size:9px;padding:2px 5px;color:#fff">مخفي</div>' : ''}
+      </div>
+      <div class="cam-label">${c.name}</div>
+      <div class="cam-sublabel">${currentRole==='admin' && !c.visible ? '🔴 مخفي عن السكان' : '🟢 مرئي'}</div>
+    </div>
+  `).join('');
+}
+
+function openCamViewer(channel, name){
+  if(!camIp){
+    alert('⚠️ لم يتم إعداد عنوان الـ DVR بعد\nتواصل مع الأدمن');
+    return;
+  }
+
+  // RTSP URL للكاميرا
+  const rtspUrl = channel==='all'
+    ? `rtsp://admin:${camPass}@${camIp}:554/Streaming/Channels/101`
+    : `rtsp://admin:${camPass}@${camIp}:554/Streaming/Channels/${channel}01`;
+
+  // فتح VLC مباشرة
+  const vlcAndroid = `vlc://${rtspUrl.replace('rtsp://','')}`; 
+  const vlcIOS     = `vlc-x-callback://x-callback-url/stream?url=${encodeURIComponent(rtspUrl)}`;
+
+  // شاشة اختيار
+  const viewer  = document.getElementById('camViewer');
+  const title   = document.getElementById('camViewerTitle');
+  const body    = document.getElementById('camViewerBody');
+
+  title.textContent = '📷 ' + name;
+  body.innerHTML = `
+    <div style="text-align:center;padding:30px 20px">
+      <div style="font-size:44px;margin-bottom:12px">📷</div>
+      <div style="font-size:16px;font-weight:700;color:#e8f4f8;margin-bottom:6px">${name}</div>
+      <div style="font-size:12px;color:#546e7a;margin-bottom:24px">اختر طريقة المشاهدة</div>
+
+      <button onclick="window.location.href='${vlcAndroid}'" style="width:100%;background:linear-gradient(135deg,#e65100,#bf360c);border:none;color:#fff;border-radius:12px;padding:14px;font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;display:block">
+        📱 فتح في VLC (Android)
+      </button>
+
+      <button onclick="window.location.href='${vlcIOS}'" style="width:100%;background:linear-gradient(135deg,#1565c0,#0d47a1);border:none;color:#fff;border-radius:12px;padding:14px;font-family:'Cairo',sans-serif;font-weight:700;font-size:15px;cursor:pointer;margin-bottom:10px;display:block">
+        🍎 فتح في VLC (iPhone)
+      </button>
+
+      <button onclick="window.open('${rtspUrl}','_blank')" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:#90caf9;border-radius:12px;padding:12px;font-family:'Cairo',sans-serif;font-weight:700;font-size:13px;cursor:pointer;margin-bottom:6px;display:block">
+        🔗 نسخ رابط RTSP
+      </button>
+
+      <div style="font-size:11px;color:#37474f;margin-top:10px;direction:ltr;word-break:break-all;background:rgba(0,0,0,.2);padding:8px;border-radius:6px">${rtspUrl.replace(':'+camPass+'@',':****@')}</div>
+    </div>`;
+
+  viewer.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeCamViewer(){
+  document.getElementById('camViewer').classList.remove('open');
+  document.getElementById('camIframe').src='';
+  document.body.style.overflow='';
+}
+
+function reloadCam(){
+  const iframe  = document.getElementById('camIframe');
+  const loading = document.getElementById('camLoading');
+  loading.style.display='flex';
+  loading.innerHTML='<div class="cam-spinner"></div><div class="cam-loading-txt">جاري إعادة التحميل...</div>';
+  const src = iframe.src; iframe.src='';
+  setTimeout(()=>{ iframe.src=src; },400);
+}
+
+function requestFullscreen(){
+  const body = document.getElementById('camViewerBody');
+  if(body.requestFullscreen) body.requestFullscreen();
+  else if(body.webkitRequestFullscreen) body.webkitRequestFullscreen();
+}
+
+// تحميل الإعدادات عند البداية
+loadCamSettings();
+
+// =====================
+// RESIDENT USERS MODULE
+// =====================
+let residentUsers = [];
+
+function loadResidentUsers(){
+  db.ref('yg5_resident_users').on('value', snap=>{
+    residentUsers = [];
+    const d = snap.val();
+    if(d) Object.entries(d).forEach(([k,v])=> residentUsers.push({...v, id:k}));
+    
+    // لو الساكن الحالي اتمسح - اطرده فوراً
+    if(currentRole==='resident_user' && currentResidentId){
+      const stillExists = residentUsers.find(u=>u.residentId===currentResidentId);
+      if(!stillExists){
+        alert('⚠️ تم إلغاء صلاحية وصولك. سيتم تسجيل الخروج.');
+        location.reload();
+        return;
+      }
+    }
+    if(currentTab==='resusers') renderResUserList();
+  });
+}
+
+function renderResUserSelect(){
+  const sel = document.getElementById('resUserSelect');
+  if(!sel) return;
+  const existing = residentUsers.map(u=>u.residentId);
+  const available = residents.filter(r=>r.name && !existing.includes(r.id));
+  sel.innerHTML = '<option value="">-- اختر الساكن --</option>' +
+    available.map(r=>`<option value="${r.id}">${r.name} - شقة ${r.code} - دور ${r.floor}</option>`).join('');
+}
+
+function renderResUserCamList(){
+  const list = document.getElementById('resUserCamList');
+  const section = document.getElementById('resUserCamSection');
+  const chk = document.getElementById('resPerm_cameras');
+  if(!list) return;
+  if(chk && !chk.checked){ section.style.display='none'; return; }
+  section.style.display='block';
+  list.innerHTML = ALL_CAMERAS.map(c=>{
+    const saved = visibleCams.find(v=>v.ch===c.ch);
+    const camName = saved ? saved.name : c.name;
+    const isVisible = saved ? saved.visible : false;
+    return `
+    <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 10px;cursor:pointer${!isVisible?' opacity:.4':''}">
+      <input type="checkbox" id="res_cam_${c.ch}" ${isVisible?'checked':''} style="accent-color:#66bb6a;width:16px;height:16px"/>
+      <span style="font-size:15px">${c.icon}</span>
+      <span style="font-size:11px;color:#546e7a;min-width:30px">CH${c.ch}</span>
+      <span style="font-size:12px;color:#e8f4f8;flex:1">${camName}</span>
+      ${!isVisible?'<span style="font-size:9px;color:#ef5350">مخفي للسكان</span>':''}
+    </label>`;
+  }).join('');
+}
+
+function addResidentUser(){
+  const resId = parseInt(document.getElementById('resUserSelect').value);
+  const pass  = document.getElementById('resUserPass').value.trim();
+  if(!resId || !pass){ alert('الرجاء اختيار الساكن وكلمة المرور'); return; }
+  if(pass==='Elaidy'){ alert('⚠️ كلمة المرور دي محجوزة'); return; }
+  if(residentUsers.find(u=>u.pass===pass)||supervisors.find(s=>s.pass===pass)){
+    alert('⚠️ كلمة المرور دي مستخدمة بالفعل'); return;
+  }
+
+  const resident = residents.find(r=>r.id===resId);
+  if(!resident){ alert('لم يتم العثور على الساكن'); return; }
+
+  const g2 = id => { const el=document.getElementById(id); return el?el.checked:false; };
+  const camsList = [];
+  ALL_CAMERAS.forEach(c=>{
+    const el = document.getElementById('res_cam_'+c.ch);
+    if(el && el.checked) camsList.push(c.ch);
+  });
+
+  const perms = {
+    collection:   g2('resPerm_collection'),
+    view_expenses:g2('resPerm_expenses'),
+    fund:         g2('resPerm_fund'),
+    reports:      g2('resPerm_reports'),
+    cameras:      g2('resPerm_cameras'),
+    cameras_list: camsList,
+  };
+
+  db.ref('yg5_resident_users').push({
+    name: resident.name,
+    residentId: resId,
+    pass, perms,
+    floor: resident.floor,
+    code: resident.code,
+    createdAt: Date.now()
+  }).then(()=>{
+    document.getElementById('resUserPass').value='';
+    document.getElementById('resUserSelect').value='';
+    alert('✅ تم إضافة الساكن: ' + resident.name);
+  }).catch(e=> alert('⚠️ خطأ: '+e.message));
+}
+
+function deleteResidentUser(id, name){
+  if(!confirm('هل تريد مسح ' + name + ' من التطبيق؟')) return;
+  db.ref('yg5_resident_users/'+id).remove()
+    .then(()=> alert('✅ تم المسح'))
+    .catch(e=> alert('⚠️ خطأ: '+e.message));
+}
+
+function renderResUserList(){
+  const list = document.getElementById('resUserList');
+  const badge = document.getElementById('resUserCountBadge');
+  if(badge) badge.textContent = residentUsers.length + ' ساكن';
+  renderResUserSelect();
+  renderResUserCamList();
+  if(!list) return;
+  if(residentUsers.length===0){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:#546e7a;font-size:13px">لا يوجد سكان مضافين للتطبيق بعد</div>';
+    return;
+  }
+  list.innerHTML = residentUsers.map(u=>{
+    const p2=u.perms||{};
+    const permsStr=[
+      p2.collection?'📋 تحصيل':'',
+      p2.view_expenses?'💰 مصروفات':'',
+      p2.fund?'🏦 صندوق':'',
+      p2.accounts?'💳 حسابات':'',
+      p2.reports?'📄 تقارير':'',
+      p2.cameras?(p2.cameras_list&&p2.cameras_list.length?'📷 '+p2.cameras_list.length+' كاميرات':'📷 كاميرات'):'',
+    ].filter(Boolean).join('  ');
+    return `
+    <div class="sup-card">
+      <div class="sup-info">
+        <div class="sup-name">🏠 ${u.name}</div>
+        <div class="sup-meta">شقة ${u.code} - دور ${u.floor} | 🔑 ${u.pass}</div>
+        <div class="sup-meta" style="margin-top:3px;color:#66bb6a">${permsStr||'بدون صلاحيات'}</div>
+      </div>
+      <button class="sup-del-btn" onclick="deleteResidentUser('${u.id}','${u.name}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// =====================
+// SUPERVISORS MODULE
+// =====================
+let supervisors = []; // [{id, name, pass, perms:{collection,residents,expenses,fund,reports,cameras}}]
+let currentSupervisorName = '';
+
+function loadSupervisors(){
+  db.ref('yg5_supervisors').on('value', snap=>{
+    supervisors = [];
+    const d = snap.val();
+    if(d) Object.entries(d).forEach(([k,v])=> supervisors.push({...v, id:k}));
+    
+    // لو المشرف الحالي اتمسح - اطرده فوراً
+    if(currentRole==='supervisor' && currentSupervisorName){
+      const stillExists = supervisors.find(s=>s.name===currentSupervisorName);
+      if(!stillExists){
+        alert('⚠️ تم إلغاء صلاحية وصولك. سيتم تسجيل الخروج.');
+        location.reload();
+        return;
+      }
+    }
+    if(currentTab==='supervisors') renderSupList();
+  });
+}
+
+function renderSupCamList(){
+  const list = document.getElementById('supCamList');
+  const section = document.getElementById('supCamSection');
+  const camPerm = document.getElementById('perm_cameras');
+  if(!list) return;
+  if(camPerm && !camPerm.checked){
+    section.style.display='none'; return;
+  }
+  section.style.display='block';
+  list.innerHTML = ALL_CAMERAS.map(c=>`
+    <label style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:7px 10px;cursor:pointer">
+      <input type="checkbox" id="sup_cam_${c.ch}" checked style="accent-color:#4fc3f7;width:16px;height:16px"/>
+      <span style="font-size:15px">${c.icon}</span>
+      <span style="font-size:11px;color:#546e7a;min-width:30px">CH${c.ch}</span>
+      <span style="font-size:12px;color:#e8f4f8;flex:1" id="sup_cam_name_${c.ch}">${(visibleCams.find(v=>v.ch===c.ch)||c).name||c.name}</span>
+    </label>
+  `).join('');
+}
+
+function addSupervisor(){
+  const name = document.getElementById('supName').value.trim();
+  const pass = document.getElementById('supPass').value.trim();
+  if(!name || !pass){ alert('الرجاء إدخال الاسم وكلمة المرور'); return; }
+  if(pass==='Elaidy'){ alert('⚠️ كلمة المرور دي محجوزة'); return; }
+  // تأكد ما فيش تكرار
+  if(supervisors.find(s=>s.pass===pass)){ alert('⚠️ كلمة المرور دي مستخدمة بالفعل'); return; }
+
+  const g = id => { const el=document.getElementById(id); return el?el.checked:false; };
+  const supCams = [];
+  ALL_CAMERAS.forEach(c=>{
+    const el = document.getElementById('sup_cam_'+c.ch);
+    if(el && el.checked) supCams.push(c.ch);
+  });
+  const perms = {
+    collection:    g('perm_collection'),
+    add_resident:  g('perm_add_resident'),
+    del_resident:  g('perm_del_resident'),
+    edit_resident: g('perm_edit_resident'),
+    view_expenses: g('perm_view_expenses'),
+    add_expenses:  g('perm_add_expenses'),
+    fund:          g('perm_fund'),
+    reports:       g('perm_reports'),
+    cameras:       g('perm_cameras'),
+    cameras_list:  supCams,
+    whatsapp:      g('perm_whatsapp'),
+  };
+  const newSup = {name, pass, perms, createdAt: Date.now()};
+  db.ref('yg5_supervisors').push(newSup)
+    .then(()=>{
+      document.getElementById('supName').value='';
+      document.getElementById('supPass').value='';
+      alert('✅ تم إضافة المشرف: ' + name);
+    })
+    .catch(e=> alert('⚠️ خطأ: '+e.message));
+}
+
+function deleteSupervisor(id, name){
+  if(!confirm('هل تريد مسح المشرف: ' + name + '؟')) return;
+  db.ref('yg5_supervisors/'+id).remove()
+    .then(()=> alert('✅ تم مسح المشرف: ' + name))
+    .catch(e=> alert('⚠️ خطأ: '+e.message));
+}
+
+function renderSupList(){
+  const list = document.getElementById('supList');
+  const badge = document.getElementById('supCountBadge');
+  if(badge) badge.textContent = supervisors.length + ' مشرف';
+  if(!list) return;
+
+  if(supervisors.length===0){
+    list.innerHTML = '<div style="text-align:center;padding:20px;color:#546e7a;font-size:13px">لا يوجد مشرفين بعد</div>';
+    return;
+  }
+
+  list.innerHTML = supervisors.map(s=>{
+    const p2 = s.perms||{};
+    const permsLabels = [
+      p2.collection?'📋 تحصيل':'',
+      p2.add_resident?'➕ إضافة سكان':'',
+      p2.del_resident?'🗑 حذف سكان':'',
+      p2.edit_resident?'✏️ تعديل سكان':'',
+      p2.view_expenses?'👁 مصروفات':'',
+      p2.add_expenses?'➕ مصروفات':'',
+      p2.fund?'🏦 صندوق':'',
+      p2.reports?'📄 تقارير':'',
+      p2.cameras?(p2.cameras_list&&p2.cameras_list.length?'📷 '+p2.cameras_list.length+' كاميرات':'📷 كاميرات'):'',
+      p2.whatsapp?'📱 واتساب':'',
+    ].filter(Boolean).join('  ');
+    return `
+    <div class="sup-card">
+      <div class="sup-info">
+        <div class="sup-name">👮 ${s.name}</div>
+        <div class="sup-meta">🔑 كلمة المرور: ${s.pass}</div>
+        <div class="sup-meta" style="margin-top:3px;color:#4fc3f7">${permsLabels}</div>
+      </div>
+      <div class="sup-actions">
+        <button class="sup-del-btn" onclick="deleteSupervisor('${s.id}','${s.name}')">🗑 مسح</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// =====================
+// TAB
+function showTab(tab){
+  if(currentRole==='user'&&['whatsapp','reports','log','accounts','fund','supervisors','resusers'].includes(tab))return;
+  if(currentRole==='resident_user'){
+    const rp=currentResidentPerms;
+    if(['log','supervisors','resusers'].includes(tab))return;
+    if(tab==='accounts'&&!rp.accounts)return;
+    if(tab==='fund'&&!rp.fund)return;
+    if(tab==='reports'&&!rp.reports)return;
+    if(tab==='expenses'&&!rp.view_expenses)return;
+    if(tab==='cameras'&&!rp.cameras)return;
+  }
+  if(currentRole==='supervisor'){
+    const p=currentSupervisorPerms;
+    if(['log','supervisors'].includes(tab))return;
+    if(tab==='whatsapp'&&!p.whatsapp)return;
+    if(tab==='accounts'&&!p.fund)return;
+    if(tab==='fund'&&!p.fund)return;
+    if(tab==='reports'&&!p.reports)return;
+    if(tab==='cameras'&&!p.cameras)return;
+    if(tab==='expenses'&&!(p.view_expenses||p.add_expenses))return;
+  }
+  currentTab=tab;
+  ['collection','expenses','whatsapp','residents','accounts','fund','reports','log','cameras','supervisors','resusers','door'].forEach(t=>{
+    const el=document.getElementById('tab-'+t);
+    if(el)el.style.display=t===tab?'block':'none';
+  });
+  document.querySelectorAll('.tab').forEach(el=>{
+    const tn=el.id?el.id.replace('tab-btn-',''):'';
+    el.classList.toggle('active',tn===tab);
+  });
+  // إعادة تطبيق صلاحيات التابات حسب الدور
+  const isAdm = currentRole==='admin';
+  const isSupv = currentRole==='supervisor';
+  const isResU = currentRole==='resident_user';
+  const sp = currentSupervisorPerms;
+  const rp = currentResidentPerms;
+  const tabRules2 = {
+    'whatsapp':    isAdm || (isSupv && sp.whatsapp),
+    'log':         isAdm,
+    'supervisors': isAdm,
+    'resusers':    isAdm,
+    'accounts':    isAdm || (isSupv && sp.fund) || (isResU && rp.accounts),
+    'fund':        isAdm || (isSupv && sp.fund) || (isResU && rp.fund),
+    'reports':     isAdm || (isSupv && sp.reports) || (isResU && rp.reports),
+    'expenses':    isAdm || (isSupv && (sp.view_expenses||sp.add_expenses)) || (isResU && rp.view_expenses),
+    'residents':   isAdm || isSupv || isResU,
+    'collection':  isAdm || isSupv || isResU,
+    'cameras':     isAdm || (isSupv && sp.cameras) || (isResU && rp.cameras),
+  };
+  document.querySelectorAll('.admin-tab').forEach(el=>{
+    const tn = el.id ? el.id.replace('tab-btn-','') : '';
+    const show = tabRules2.hasOwnProperty(tn) ? tabRules2[tn] : isAdm;
+    el.style.setProperty('display', show?'flex':'none','important');
+  });
+  if(tab==='door'){ loadDoorSettings(); }
+  else if(tab==='cameras') renderCamGrid();
+  else if(tab==='supervisors'){ renderSupList(); setTimeout(renderSupCamList,300); }
+  else if(tab==='resusers'){ loadResidentUsers(); }
+  else render();
+  // تأكد من إخفاء التابات غير المصرح بها بعد كل تنقل
+  if(currentRole==='resident_user'||currentRole==='supervisor') applyRole();
+}
+
+
+function render(){
+  renderStats();
+  if(currentTab==='collection')renderCollection();
+  if(currentTab==='expenses')renderExpenses();
+  if(currentTab==='whatsapp')renderWhatsapp();
+  if(currentTab==='residents')renderResidentsMgmt();
+  if(currentTab==='accounts')renderAccounts();
+  if(currentTab==='fund')renderFund();
+  if(currentTab==='reports')renderReportPreview();
+  if(currentTab==='log')renderLog();
+}
+
+// INIT - show login first, load data after login
+localStorage.removeItem('yg5_auth_time');
+localStorage.removeItem('yg5_role');
+// Don't load on startup - load after login
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
+}
+</script>
+</body>
+</html>
