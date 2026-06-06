@@ -669,6 +669,10 @@ input::placeholder{color:#607d8b}
         <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
         <span>📷 الكاميرات</span>
       </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_door" style="accent-color:#66bb6a">
+        <span>🚪 الباب</span>
+      </label>
     </div>
 
     <!-- اختيار كاميرات الساكن -->
@@ -757,6 +761,10 @@ input::placeholder{color:#607d8b}
       <label class="perm-label">
         <input type="checkbox" id="perm_whatsapp" style="accent-color:#4fc3f7">
         <span>📱 إرسال واتساب</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_door" style="accent-color:#4fc3f7">
+        <span>🚪 الباب</span>
       </label>
     </div>
 
@@ -1099,7 +1107,8 @@ function renderCollection(){
 
 // PAY FUNCTIONS
 function togglePaid(id){
-  if(currentRole!=='admin')return;
+  const canToggle = currentRole==='admin' || (currentRole==='supervisor' && currentSupervisorPerms.collection);
+  if(!canToggle)return;
   const k=mk();if(!payments[k])payments[k]={};
   payments[k][id]=!payments[k][id];
   save();render();
@@ -1119,7 +1128,7 @@ function userPay(id){
 
 // EXPENSES
 function addExpense(){
-  if(currentRole!=='admin')return;
+  if(currentRole!=='admin' && !(currentRole==='supervisor' && currentSupervisorPerms.add_expenses))return;
   const label=document.getElementById('expLabel').value.trim();
   const amount=document.getElementById('expAmount').value.trim();
   if(!label||!amount)return;
@@ -1129,7 +1138,7 @@ function addExpense(){
   renderExpenses();renderStats();
 }
 function removeExpense(id){
-  if(currentRole!=='admin')return;
+  if(currentRole!=='admin' && !(currentRole==='supervisor' && currentSupervisorPerms.add_expenses))return;
   const k=mk();expenses[k]=(expenses[k]||[]).filter(e=>e.id!==id);
   save();renderExpenses();renderStats();
 }
@@ -1710,7 +1719,7 @@ function applyRole(){
     'supervisors':  isAdmin,
     'resusers':     isAdmin,
     'cameras':      isAdmin || (isSup && p.cameras) || (isRes && p.cameras),
-    'door':         true,
+    'door':         isAdmin || (isSup && p.door) || (isRes && p.door),
     'accounts':     isAdmin || (isSup && p.fund) || (isRes && p.accounts),
     'fund':         isAdmin || (isSup && p.fund) || (isRes && p.fund),
     'reports':      isAdmin || (isSup && p.reports) || (isRes && p.reports),
@@ -1812,7 +1821,8 @@ function saveDoorResidents(){
 }
 
 function canOpenDoor(){
-  if(currentRole==='admin' || currentRole==='supervisor') return true;
+  if(currentRole==='admin') return true;
+  if(currentRole==='supervisor') return !!(currentSupervisorPerms && currentSupervisorPerms.door);
   if(currentRole==='resident_user') return doorAllowedResidents.includes(currentResidentId);
   return false;
 }
@@ -2437,6 +2447,7 @@ function addResidentUser(){
     reports:      g2('resPerm_reports'),
     cameras:      g2('resPerm_cameras'),
     cameras_list: camsList,
+    door:         g2('resPerm_door'),
   };
 
   db.ref('yg5_resident_users').push({
@@ -2480,6 +2491,7 @@ function renderResUserList(){
       p2.accounts?'💳 حسابات':'',
       p2.reports?'📄 تقارير':'',
       p2.cameras?(p2.cameras_list&&p2.cameras_list.length?'📷 '+p2.cameras_list.length+' كاميرات':'📷 كاميرات'):'',
+      p2.door?'🚪 الباب':'',
     ].filter(Boolean).join('  ');
     return `
     <div class="sup-card">
@@ -2563,6 +2575,7 @@ function addSupervisor(){
     cameras:       g('perm_cameras'),
     cameras_list:  supCams,
     whatsapp:      g('perm_whatsapp'),
+    door:          g('perm_door'),
   };
   const newSup = {name, pass, perms, createdAt: Date.now()};
   db.ref('yg5_supervisors').push(newSup)
@@ -2605,6 +2618,7 @@ function renderSupList(){
       p2.reports?'📄 تقارير':'',
       p2.cameras?(p2.cameras_list&&p2.cameras_list.length?'📷 '+p2.cameras_list.length+' كاميرات':'📷 كاميرات'):'',
       p2.whatsapp?'📱 واتساب':'',
+      p2.door?'🚪 الباب':'',
     ].filter(Boolean).join('  ');
     return `
     <div class="sup-card">
