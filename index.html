@@ -375,7 +375,7 @@ input::placeholder{color:#607d8b}
 
 <!-- EXPENSES -->
 <div id="tab-expenses" style="display:none">
-  <div class="box admin-only">
+  <div class="box" id="expenseAddBox">
     <div class="box-title">➕ إضافة مصروف</div>
     <div class="form-row">
       <input id="expLabel" placeholder="البيان (كهرباء، مياه...)"/>
@@ -445,7 +445,7 @@ input::placeholder{color:#607d8b}
     <div class="fund-amount" id="fundTotal" style="color:#4fc3f7">0 ج</div>
     <div class="fund-label" id="fundSub">مجموع أرصدة جميع الشهور</div>
   </div>
-  <div class="box admin-only">
+  <div class="box" id="fundOpeningBox">
     <div class="box-title">➕ رصيد افتتاحي</div>
     <div class="form-row">
       <input id="fundOpening" type="number" placeholder="مثال: 5000"/>
@@ -1156,7 +1156,7 @@ function renderExpenses(){
   else{
     list.forEach(e=>{html+=`<div class="exp-item"><div style="font-weight:600;font-size:13px">${e.label}</div>
       <div style="display:flex;align-items:center;gap:8px"><span class="exp-amt">${Number(e.amount).toLocaleString()} ج</span>
-      ${currentRole==='admin'?'<button class="btn-del" onclick="removeExpense('+e.id+')">حذف</button>':''}</div></div>`;});
+      ${(currentRole==='admin'||(currentRole==='supervisor'&&currentSupervisorPerms.add_expenses))?'<button class="btn-del" onclick="removeExpense('+e.id+')">حذف</button>':''}</div></div>`;});
     html+=`<div class="total-row"><span>الإجمالي</span><span style="color:#ab47bc;font-size:16px">${s.exps.toLocaleString()} ج</span></div>`;
   }
   document.getElementById('expenseList').innerHTML=html;
@@ -1399,6 +1399,7 @@ function getFundOpening(){
   return parseFloat(window._fundOpening||localStorage.getItem('yg5_fund_opening')||'0')||0;
 }
 function saveFundOpening(){
+  if(currentRole!=='admin' && !(currentRole==='supervisor' && currentSupervisorPerms.fund)) return;
   const v=parseFloat(document.getElementById('fundOpening').value)||0;
   window._fundOpening=v;
   localStorage.setItem('yg5_fund_opening',String(v));
@@ -1795,6 +1796,14 @@ function applyRole(){
   document.querySelectorAll('.admin-only').forEach(el=>{
     el.style.setProperty('display', isAdmin?'':'none', 'important');
   });
+
+  // صندوق الرصيد الافتتاحي - يظهر للأدمن والمشرف اللي عنده صلاحية
+  const fundBox = document.getElementById('fundOpeningBox');
+  if(fundBox) fundBox.style.setProperty('display', (isAdmin||(isSup&&p.fund))?'':'none','important');
+
+  // صندوق إضافة مصروف - يظهر للأدمن والمشرف اللي عنده صلاحية
+  const expBox = document.getElementById('expenseAddBox');
+  if(expBox) expBox.style.setProperty('display', (isAdmin||(isSup&&p.add_expenses))?'':'none','important');
 
   // زر إضافة سكان
   const addBtn=document.getElementById('addResidentBtn');
