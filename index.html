@@ -1560,7 +1560,8 @@ function openAddModal(){if(currentRole!=='admin'&&!(currentRole==='supervisor'&&
 function openEditModal(id){if(currentRole!=='admin'&&!(currentRole==='supervisor'&&currentSupervisorPerms.edit_resident))return;const r=residents.find(x=>x.id===id);if(!r)return;editingId=id;document.getElementById('modalTitle').textContent='✏️ تعديل';document.getElementById('mName').value=r.name;document.getElementById('mCode').value=r.code;document.getElementById('mFloor').value=r.floor;document.getElementById('mPhone').value=r.phone||'';document.getElementById('residentModal').classList.add('open')}
 function closeModal(){document.getElementById('residentModal').classList.remove('open')}
 function saveResident(){
-  if(currentRole!=='admin')return;
+  const canAdd = currentRole==='admin' || (currentRole==='supervisor' && (currentSupervisorPerms.add_resident||currentSupervisorPerms.edit_resident));
+  if(!canAdd) return;
   const name=document.getElementById('mName').value.trim();
   const code=parseInt(document.getElementById('mCode').value);
   const floor=parseInt(document.getElementById('mFloor').value);
