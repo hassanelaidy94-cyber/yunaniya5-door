@@ -1389,7 +1389,8 @@ function printAccountStatement(){
     <div class="sbox"><div class="v" style="color:#e65100">${totalDebt.toLocaleString()}</div><div class="l">مديونية (ج)</div></div>
   </div>
   <table><tr><th>الشهر</th><th>الحالة</th></tr>${rows}</table>
-  <script>window.onload=()=>window.print()<\/script></body></html>`);
+  <script>window.onload=()=>window.print()<\/script>
+`);
   w.document.close();
 }
 
@@ -1533,7 +1534,8 @@ function printReport(){
   ${fundRows}</table>
   <div class="fund-box"><div style="font-size:13px;color:#555;margin-bottom:6px">💰 إجمالي صندوق العمارة حتى الآن</div>
   <div class="fv">${running.toLocaleString()} جنيه</div></div>`:''}
-  <script>window.onload=()=>window.print()<\/script></body></html>`);
+  <script>window.onload=()=>window.print()<\/script>
+`);
   w.document.close();
 }
 
@@ -2814,5 +2816,6 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})});
 }
 </script>
+
 </body>
 </html>
