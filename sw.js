@@ -1,5 +1,5 @@
-// يتغير تلقائياً بناءً على التاريخ والوقت
-const CACHE = 'yg5-' + new Date().toISOString().slice(0,16).replace(/[-T:]/g,'');
+// Cache يتغير كل ساعة عشان السكان ياخدوا أحدث نسخة
+const CACHE = 'yg5-' + new Date().toISOString().slice(0,13).replace(/[-T:]/g,'');
 
 self.addEventListener('install', e => {
   e.waitUntil(
@@ -17,8 +17,16 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Network first - دايما يجيب من الإنترنت أولاً
 self.addEventListener('fetch', e => {
   e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
+    fetch(e.request)
+      .then(res => {
+        // لو نجح، احفظ نسخة في الـ Cache
+        const clone = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
