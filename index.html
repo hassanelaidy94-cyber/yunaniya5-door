@@ -2498,6 +2498,17 @@ function saveResidentUserEdit(id){
     .catch(e=>alert('❌ خطأ: '+e.message));
 }
 
+function removeResidentDevice(userId, deviceKey, userName){
+  if(currentRole!=='admin') return;
+  if(!confirm('حذف هذا الجهاز من حساب "'+userName+'"؟')) return;
+  db.ref('yg5_resident_users/'+userId+'/devices/'+deviceKey).remove()
+    .then(()=>{
+      alert('✅ تم حذف الجهاز بنجاح');
+      loadResidentUsers();
+    })
+    .catch(e=>alert('❌ خطأ: '+e.message));
+}
+
 function deleteResidentUser(id, name){
   if(!confirm('هل تريد مسح ' + name + ' من التطبيق؟')) return;
   db.ref('yg5_resident_users/'+id).remove()
