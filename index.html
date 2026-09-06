@@ -1698,7 +1698,7 @@ function applyRole(){
     'supervisors':  isAdmin,
     'resusers':     isAdmin,
     'cameras':      isAdmin || (isSup && p.cameras) || (isRes && p.cameras),
-    'door':         true,
+    'door':         isAdmin || (isSup && p.door) || (isRes && p.door),
     'accounts':     isAdmin || (isSup && p.fund) || (isRes && p.accounts),
     'fund':         isAdmin || (isSup && p.fund) || (isRes && p.fund),
     'reports':      isAdmin || (isSup && p.reports) || (isRes && p.reports),
@@ -1797,8 +1797,9 @@ function saveDoorResidents(){
 }
 
 function canOpenDoor(){
-  if(currentRole==='admin' || currentRole==='supervisor') return true;
-  if(currentRole==='resident_user') return doorAllowedResidents.includes(currentResidentId);
+  if(currentRole==='admin') return true;
+  if(currentRole==='supervisor') return !!(currentSupervisorPerms && currentSupervisorPerms.door);
+  if(currentRole==='resident_user') return !!(currentResidentPerms && currentResidentPerms.door) || doorAllowedResidents.includes(currentResidentId);
   return false;
 }
 
