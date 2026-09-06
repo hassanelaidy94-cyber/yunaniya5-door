@@ -669,6 +669,10 @@ input::placeholder{color:#607d8b}
         <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
         <span>📷 الكاميرات</span>
       </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_door" style="accent-color:#66bb6a">
+        <span>🚪 الباب</span>
+      </label>
     </div>
 
     <!-- اختيار كاميرات الساكن -->
@@ -2418,6 +2422,7 @@ function addResidentUser(){
     reports:      g2('resPerm_reports'),
     cameras:      g2('resPerm_cameras'),
     cameras_list: camsList,
+    door:         g2('resPerm_door'),
   };
 
   db.ref('yg5_resident_users').push({
