@@ -762,6 +762,10 @@ input::placeholder{color:#607d8b}
         <input type="checkbox" id="perm_whatsapp" style="accent-color:#4fc3f7">
         <span>📱 إرسال واتساب</span>
       </label>
+      <label class="perm-label">
+        <input type="checkbox" id="perm_door" style="accent-color:#4fc3f7">
+        <span>🚪 الباب</span>
+      </label>
     </div>
 
     <!-- اختيار كاميرات المشرف -->
@@ -2636,6 +2640,7 @@ function addSupervisor(){
     cameras:       g('perm_cameras'),
     cameras_list:  supCams,
     whatsapp:      g('perm_whatsapp'),
+    door:          g('perm_door'),
   };
   const newSup = {name, pass, perms, createdAt: Date.now()};
   db.ref('yg5_supervisors').push(newSup)
