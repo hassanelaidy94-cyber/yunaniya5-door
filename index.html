@@ -1746,7 +1746,9 @@ let doorSettings = {
   clientId: 'gfn4jux3rr5fc74mnamk',
   secret: '7dfaa187d7164de2849eb284d00eb428',
   deviceId: 'bf975a0b7f1159d9e5u3ln',
-  endpoint: 'https://openapi.tuyaeu.com'
+  endpoint: 'https://openapi.tuyaeu.com',
+  vercelUrl: 'https://yunaniya5-door.vercel.app',
+  appSecret: 'yunaniya5_door_2025'
 };
 let doorAllowedResidents = []; // IDs السكان المسموح لهم
 let doorTimerInterval = null;
@@ -1907,7 +1909,7 @@ async function openDoor(){
   clearInterval(doorTimerInterval);
 
   try {
-    const vercelUrl = doorSettings.vercelUrl || '';
+    const vercelUrl = (doorSettings.vercelUrl || 'https://yunaniya5-door.vercel.app').replace(/\/+$/, '');
     if(!vercelUrl){ throw new Error('لم يتم إعداد رابط الـ Server بعد'); }
 
     const resp = await fetch(vercelUrl + '/api/open-door', {
