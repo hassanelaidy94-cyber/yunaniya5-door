@@ -669,6 +669,10 @@ input::placeholder{color:#607d8b}
         <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
         <span>📷 الكاميرات</span>
       </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_door" style="accent-color:#66bb6a">
+        <span>🚪 الباب</span>
+      </label>
     </div>
 
     <!-- اختيار كاميرات الساكن -->
@@ -1710,7 +1714,7 @@ function applyRole(){
     'supervisors':  isAdmin,
     'resusers':     isAdmin,
     'cameras':      isAdmin || (isSup && p.cameras) || (isRes && p.cameras),
-    'door':         true,
+    'door':         isAdmin || (isSup && p.door) || (isRes && p.door),
     'accounts':     isAdmin || (isSup && p.fund) || (isRes && p.accounts),
     'fund':         isAdmin || (isSup && p.fund) || (isRes && p.fund),
     'reports':      isAdmin || (isSup && p.reports) || (isRes && p.reports),
@@ -1809,8 +1813,9 @@ function saveDoorResidents(){
 }
 
 function canOpenDoor(){
-  if(currentRole==='admin' || currentRole==='supervisor') return true;
-  if(currentRole==='resident_user') return doorAllowedResidents.includes(currentResidentId);
+  if(currentRole==='admin') return true;
+  if(currentRole==='supervisor') return !!(currentSupervisorPerms && currentSupervisorPerms.door);
+  if(currentRole==='resident_user') return !!(currentResidentPerms && currentResidentPerms.door) || doorAllowedResidents.includes(currentResidentId);
   return false;
 }
 
@@ -2434,6 +2439,7 @@ function addResidentUser(){
     reports:      g2('resPerm_reports'),
     cameras:      g2('resPerm_cameras'),
     cameras_list: camsList,
+    door:         g2('resPerm_door'),
   };
 
   db.ref('yg5_resident_users').push({
