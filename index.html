@@ -288,10 +288,10 @@ input::placeholder{color:#607d8b}
           <div style="font-size:11px;color:#90caf9">تحويل فوري</div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;color:#4fc3f7;font-weight:700;letter-spacing:.5px">maboghadeer@instapay</div>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px;color:#4fc3f7;font-weight:700;letter-spacing:.5px">ahmedharby1990@instapay</div>
       <div style="display:flex;gap:8px">
-        <button onclick="copyText('maboghadeer@instapay')" style="flex:1;background:rgba(0,120,255,.2);border:1px solid rgba(0,120,255,.4);color:#60b4ff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
-        <button onclick="window.open('https://ipn.eg/S/maboghadeer/instapay/5sY2Al','_blank')" style="flex:1;background:linear-gradient(135deg,#0070f3,#00a8ff);border:none;color:#fff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">🔗 فتح الرابط</button>
+        <button onclick="copyText('ahmedharby1990@instapay')" style="flex:1;background:rgba(0,120,255,.2);border:1px solid rgba(0,120,255,.4);color:#60b4ff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
+        <button onclick="window.open('https://ipn.eg/S/ahmedharby1990/instapay/8XixmW','_blank')" style="flex:1;background:linear-gradient(135deg,#0070f3,#00a8ff);border:none;color:#fff;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">🔗 فتح الرابط</button>
       </div>
     </div>
 
@@ -304,8 +304,8 @@ input::placeholder{color:#607d8b}
           <div style="font-size:11px;color:#90caf9">تحويل فوداكاش</div>
         </div>
       </div>
-      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:16px;color:#ff6b6b;font-weight:700;letter-spacing:2px">01098015641</div>
-      <button onclick="copyText('01098015641')" style="width:100%;background:rgba(230,0,0,.2);border:1px solid rgba(230,0,0,.4);color:#ff6b6b;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
+      <div style="background:rgba(255,255,255,.07);border-radius:8px;padding:10px;margin-bottom:8px;font-size:16px;color:#ff6b6b;font-weight:700;letter-spacing:2px">01023399883</div>
+      <button onclick="copyText('01023399883')" style="width:100%;background:rgba(230,0,0,.2);border:1px solid rgba(230,0,0,.4);color:#ff6b6b;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
     </div>
 
     <div style="font-size:11px;color:#546e7a;margin-bottom:16px">بعد الدفع، اضغط "متابعة" لتسجيل دفعك</div>
@@ -393,17 +393,17 @@ input::placeholder{color:#607d8b}
       <div class="pay-icon">💙</div>
       <div class="pay-info">
         <div class="pay-name">InstaPay</div>
-        <div class="pay-num">maboghadeer@instapay</div>
+        <div class="pay-num">ahmedharby1990@instapay</div>
       </div>
-      <button class="btn-copy" onclick="copyText('maboghadeer@instapay')">نسخ</button>
+      <button class="btn-copy" onclick="copyText('ahmedharby1990@instapay')">نسخ</button>
     </div>
     <div class="pay-method">
       <div class="pay-icon">❤️</div>
       <div class="pay-info">
         <div class="pay-name">Vodafone Cash</div>
-        <div class="pay-num">01098015641</div>
+        <div class="pay-num">01023399883</div>
       </div>
-      <button class="btn-copy" onclick="copyText('01098015641')">نسخ</button>
+      <button class="btn-copy" onclick="copyText('01023399883')">نسخ</button>
     </div>
   </div>
   <div id="msgBox" style="display:none" class="msg-box">
@@ -666,12 +666,12 @@ input::placeholder{color:#607d8b}
         <span>📄 التقارير</span>
       </label>
       <label class="perm-label">
-        <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
-        <span>📷 الكاميرات</span>
-      </label>
-      <label class="perm-label">
         <input type="checkbox" id="resPerm_door" style="accent-color:#66bb6a">
         <span>🚪 الباب</span>
+      </label>
+      <label class="perm-label">
+        <input type="checkbox" id="resPerm_cameras" checked style="accent-color:#66bb6a" onchange="renderResUserCamList()">
+        <span>📷 الكاميرات</span>
       </label>
     </div>
 
@@ -755,6 +755,10 @@ input::placeholder{color:#607d8b}
     <div style="font-size:11px;color:#ffa726;font-weight:700;margin-bottom:5px;padding-right:2px">📱 أخرى</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px">
       <label class="perm-label">
+        <input type="checkbox" id="perm_door" style="accent-color:#4fc3f7">
+        <span>🚪 فتح الباب</span>
+      </label>
+      <label class="perm-label">
         <input type="checkbox" id="perm_cameras" checked style="accent-color:#4fc3f7" onchange="renderSupCamList()">
         <span>📷 مشاهدة الكاميرات</span>
       </label>
@@ -811,9 +815,9 @@ input::placeholder{color:#607d8b}
 <script>
 const MAINTENANCE = 500;
 const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-const INSTAPAY = 'maboghadeer@instapay';
-const VODAFONE = '01098015641';
-const INSTAPAY_LINK = 'https://ipn.eg/S/maboghadeer/instapay/5sY2Al';
+const INSTAPAY = 'ahmedharby1990@instapay';
+const VODAFONE = '01023399883';
+const INSTAPAY_LINK = 'https://ipn.eg/S/ahmedharby1990/instapay/8XixmW';
 
 const DEFAULT_RESIDENTS = [
   {id:1,code:11,name:"",floor:1,phone:""},{id:2,code:21,name:"أحمد بدر",floor:1,phone:"01099906909"},
@@ -1930,7 +1934,7 @@ async function openDoor(){
   clearInterval(doorTimerInterval);
 
   try {
-    const vercelUrl = (doorSettings.vercelUrl || 'https://yunaniya5-door.vercel.app').replace(/\/+$/, '');
+    const vercelUrl = doorSettings.vercelUrl || '';
     if(!vercelUrl){ throw new Error('لم يتم إعداد رابط الـ Server بعد'); }
 
     const resp = await fetch(vercelUrl + '/api/open-door', {
@@ -2437,9 +2441,9 @@ function addResidentUser(){
     view_expenses:g2('resPerm_expenses'),
     fund:         g2('resPerm_fund'),
     reports:      g2('resPerm_reports'),
+    door:         g2('resPerm_door'),
     cameras:      g2('resPerm_cameras'),
     cameras_list: camsList,
-    door:         g2('resPerm_door'),
   };
 
   db.ref('yg5_resident_users').push({
@@ -2482,18 +2486,95 @@ function renderResUserList(){
       p2.fund?'🏦 صندوق':'',
       p2.accounts?'💳 حسابات':'',
       p2.reports?'📄 تقارير':'',
+      p2.door?'🚪 الباب':'',
       p2.cameras?(p2.cameras_list&&p2.cameras_list.length?'📷 '+p2.cameras_list.length+' كاميرات':'📷 كاميرات'):'',
     ].filter(Boolean).join('  ');
+    // عرض الأجهزة
+    const devs = u.devices ? Object.entries(u.devices) : [];
+    const devsHtml = devs.length>0 ? `
+      <div style="margin-top:6px;font-size:11px;color:#90a4ae">
+        📱 الأجهزة (${devs.length}/2):
+        ${devs.map(([k,d])=>`
+          <span style="display:inline-flex;align-items:center;gap:4px;background:rgba(79,195,247,.1);border:1px solid rgba(79,195,247,.2);border-radius:6px;padding:2px 7px;margin:2px">
+            ${d.name||'جهاز'}
+            <button onclick="removeResidentDevice('${u.id}','${k}','${u.name}')" style="background:none;border:none;color:#ef5350;cursor:pointer;font-size:12px;padding:0;line-height:1">✕</button>
+          </span>
+        `).join('')}
+      </div>` : `<div style="margin-top:4px;font-size:11px;color:#546e7a">📱 لا توجد أجهزة مسجلة</div>`;
     return `
     <div class="sup-card">
       <div class="sup-info">
         <div class="sup-name">🏠 ${u.name}</div>
         <div class="sup-meta">شقة ${u.code} - دور ${u.floor} | 🔑 ${u.pass}</div>
         <div class="sup-meta" style="margin-top:3px;color:#66bb6a">${permsStr||'بدون صلاحيات'}</div>
+        ${devsHtml}
       </div>
-      <button class="sup-del-btn" onclick="deleteResidentUser('${u.id}','${u.name}')">🗑</button>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="sup-del-btn" style="background:#1e3a5f;color:#4fc3f7" onclick="editResidentUser('${u.id}')">✏️</button>
+        <button class="sup-del-btn" onclick="deleteResidentUser('${u.id}','${u.name}')">🗑</button>
+      </div>
     </div>`;
   }).join('');
+}
+
+function removeResidentDevice(userId, deviceKey, userName){
+  if(!confirm('هل تريد مسح هذا الجهاز من حساب '+userName+'؟')) return;
+  db.ref('yg5_resident_users/'+userId+'/devices/'+deviceKey).remove()
+    .then(()=>{ alert('✅ تم مسح الجهاز'); })
+    .catch(e=>alert('⚠️ خطأ: '+e.message));
+}
+
+function editResidentUser(id){
+  const u = residentUsers.find(x=>x.id===id);
+  if(!u){ alert('لم يتم العثور على الساكن'); return; }
+  const p = u.perms||{};
+  const modal = document.createElement('div');
+  modal.id = 'editResModal';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`
+  <div style="background:#0d1b2e;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto">
+    <h3 style="color:#e8f4f8;margin:0 0 16px;text-align:center">✏️ تعديل: ${u.name}</h3>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${[
+        ['collection','📋 تحصيل الإيجار',p.collection],
+        ['view_expenses','💰 عرض المصروفات',p.view_expenses],
+        ['fund','🏦 الصندوق',p.fund],
+        ['accounts','💳 الحسابات',p.accounts],
+        ['reports','📄 التقارير',p.reports],
+        ['door','🚪 الباب',p.door],
+        ['cameras','📷 الكاميرات',p.cameras],
+      ].map(([key,label,val])=>`
+        <label style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border-radius:8px;padding:8px 12px;cursor:pointer">
+          <input type="checkbox" id="edit_res_${key}" ${val?'checked':''} style="accent-color:#66bb6a;width:18px;height:18px">
+          <span style="color:#e8f4f8;font-size:14px">${label}</span>
+        </label>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="saveResidentUserEdit('${id}')" style="flex:1;background:#66bb6a;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer">💾 حفظ</button>
+      <button onclick="document.getElementById('editResModal').remove()" style="flex:1;background:#37474f;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function saveResidentUserEdit(id){
+  const g = key => { const el=document.getElementById('edit_res_'+key); return el?el.checked:false; };
+  const perms = {
+    collection:    g('collection'),
+    view_expenses: g('view_expenses'),
+    fund:          g('fund'),
+    accounts:      g('accounts'),
+    reports:       g('reports'),
+    door:          g('door'),
+    cameras:       g('cameras'),
+  };
+  db.ref('yg5_resident_users/'+id+'/perms').set(perms)
+    .then(()=>{
+      alert('✅ تم حفظ الصلاحيات');
+      const modal=document.getElementById('editResModal');
+      if(modal) modal.remove();
+    })
+    .catch(e=>alert('⚠️ خطأ: '+e.message));
 }
 
 // =====================
@@ -2563,6 +2644,7 @@ function addSupervisor(){
     add_expenses:  g('perm_add_expenses'),
     fund:          g('perm_fund'),
     reports:       g('perm_reports'),
+    door:          g('perm_door'),
     cameras:       g('perm_cameras'),
     cameras_list:  supCams,
     whatsapp:      g('perm_whatsapp'),
