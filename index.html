@@ -1057,8 +1057,11 @@ function renderCollection(){
       let btnHtml='';
       const isResidentSelf = currentRole==='resident_user' && r.id===currentResidentId;
       const canToggle = currentRole==='admin' || (currentRole==='supervisor' && currentSupervisorPerms.collection);
+      // حساب الشهور المدفوعة مقدماً
+      const advMonths = getAdvanceMonths(r.id);
+      const advBadge = advMonths>0 ? `<span style="font-size:10px;background:#1565c0;color:#90caf9;border-radius:5px;padding:1px 5px;margin-right:3px">⏩ ${advMonths} مقدم</span>` : '';
       if(canToggle){
-        btnHtml=`<button class="pay-btn ${p?'paid':''}" onclick="togglePaid(${r.id})">${p?'✓ تم':'دفع'}</button>`;
+        btnHtml=`<button class="pay-btn" style="font-size:11px;padding:4px 8px;background:#1565c0;color:#90caf9;border:1px solid #1976d2" onclick="advancePay(${r.id},'${r.name}',${r.code})">⏩ مقدم</button><button class="pay-btn ${p?'paid':''}" onclick="togglePaid(${r.id})">${p?'✓ تم':'دفع'}</button>`;
       } else if(currentRole==='user' || isResidentSelf) {
         if(p&&hasDevicePaid(r.id)){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
         else if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.7">✓ تم الدفع</button>`;}
@@ -1085,6 +1088,7 @@ function renderCollection(){
           <div class="r-meta">شقة ${r.code} • دور ${r.floor}</div>
           ${r.phone?'<div class="r-phone">📱 '+r.phone+'</div>':''}
           ${debt>0&&currentRole==='admin'?'<div class="r-debt">مديونية: '+debt.toLocaleString()+' ج</div>':''}
+          ${advBadge}
         </div>
         <div style="display:flex;align-items:center;gap:5px">
           ${p?'<span style="font-size:11px;color:#66bb6a;font-weight:700">'+MAINTENANCE+'ج</span>':''}
@@ -1107,10 +1111,88 @@ function renderCollection(){
 
 // PAY FUNCTIONS
 function togglePaid(id){
-  if(currentRole!=='admin')return;
+  const canToggle = currentRole==='admin' || (currentRole==='supervisor' && currentSupervisorPerms.collection);
+  if(!canToggle)return;
   const k=mk();if(!payments[k])payments[k]={};
   payments[k][id]=!payments[k][id];
   save();render();
+}
+
+// دالة حساب الشهور المدفوعة مقدماً لساكن معين
+function getAdvanceMonths(id){
+  let count=0;
+  const curKey=mk();
+  // نعدّ كل شهر مستقبلي مدفوع
+  for(let yi=selYear;yi<=selYear+3;yi++){
+    for(let mi=0;mi<12;mi++){
+      if(yi===selYear && mi<=selMonth) continue; // تجاوز الشهر الحالي وما قبله
+      const k=yi+'-'+mi;
+      if(payments[k]&&payments[k][id]) count++;
+    }
+  }
+  return count;
+}
+
+// نافذة الدفع المقدم
+function advancePay(id, name, code){
+  const canToggle = currentRole==='admin' || (currentRole==='supervisor' && currentSupervisorPerms.collection);
+  if(!canToggle){ alert('⚠️ ليس لديك صلاحية'); return; }
+
+  // بناء قائمة الشهور القادمة (12 شهر)
+  let monthsHtml='';
+  for(let i=1;i<=12;i++){
+    let m=selMonth+i, y=selYear;
+    if(m>=12){m-=12;y++;}
+    const k=y+'-'+m;
+    const alreadyPaid=!!(payments[k]&&payments[k][id]);
+    monthsHtml+=`
+      <label style="display:flex;align-items:center;gap:8px;background:${alreadyPaid?'rgba(102,187,106,.1)':'rgba(255,255,255,.04)'};border:1px solid ${alreadyPaid?'rgba(102,187,106,.3)':'rgba(255,255,255,.07)'};border-radius:8px;padding:7px 10px;cursor:pointer">
+        <input type="checkbox" value="${k}" ${alreadyPaid?'checked disabled':''} style="accent-color:#66bb6a;width:16px;height:16px">
+        <span style="color:#e8f4f8;font-size:13px">${MONTHS[m]} ${y}</span>
+        ${alreadyPaid?'<span style="font-size:10px;color:#66bb6a;margin-right:auto">✓ مدفوع</span>':''}
+      </label>`;
+  }
+
+  const modal=document.createElement('div');
+  modal.id='advancePayModal';
+  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.75);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`
+  <div style="background:#0d1b2e;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:22px;width:92%;max-width:400px;max-height:85vh;overflow-y:auto">
+    <h3 style="color:#90caf9;margin:0 0 4px;text-align:center">⏩ دفع مقدم</h3>
+    <p style="color:#546e7a;font-size:12px;text-align:center;margin:0 0 16px">🏠 ${name} — شقة ${code}</p>
+    <p style="color:#ffa726;font-size:11px;margin:0 0 12px;text-align:center">اختر الشهور اللي عاوز تسجّلها كمدفوعة</p>
+    <div style="display:flex;flex-direction:column;gap:6px" id="advMonthsList">
+      ${monthsHtml}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button onclick="confirmAdvancePay(${id},'${name}')" style="flex:1;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer">💾 تأكيد</button>
+      <button onclick="document.getElementById('advancePayModal').remove()" style="flex:1;background:#37474f;color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;cursor:pointer">إلغاء</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+
+function confirmAdvancePay(id, name){
+  const checkboxes=document.querySelectorAll('#advMonthsList input[type=checkbox]:not(:disabled)');
+  let saved=0;
+  checkboxes.forEach(cb=>{
+    if(cb.checked){
+      const k=cb.value;
+      if(!payments[k]) payments[k]={};
+      payments[k][id]=true;
+      saved++;
+    } else {
+      // لو شيله علامة ← يمسح الدفع
+      const k=cb.value;
+      if(payments[k]&&payments[k][id]){
+        payments[k][id]=false;
+      }
+    }
+  });
+  save();
+  document.getElementById('advancePayModal').remove();
+  alert(saved>0 ? '✅ تم تسجيل دفع '+saved+' شهر مقدماً لـ '+name : '✅ تم التحديث');
+  render();
 }
 
 function userPay(id){
