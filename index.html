@@ -308,8 +308,8 @@ input::placeholder{color:#607d8b}
       <button onclick="copyText('01098015641')" style="width:100%;background:rgba(230,0,0,.2);border:1px solid rgba(230,0,0,.4);color:#ff6b6b;border-radius:8px;padding:8px;cursor:pointer;font-family:Cairo,sans-serif;font-size:12px;font-weight:700">📋 نسخ الرقم</button>
     </div>
 
-    <div style="font-size:11px;color:#546e7a;margin-bottom:16px">بعد الدفع، اضغط "متابعة" لتسجيل دفعك</div>
-    <button onclick="enterMainApp()" style="width:100%;background:linear-gradient(135deg,#4fc3f7,#0288d1);border:none;color:#fff;border-radius:12px;padding:14px;font-family:Cairo,sans-serif;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(79,195,247,.35)">متابعة ← تسجيل الدفع</button>
+    <div style="font-size:11px;color:#546e7a;margin-bottom:16px">بعد الدفع، اضغط "متابعة" للدخول للتطبيق</div>
+    <button onclick="enterMainApp()" style="width:100%;background:linear-gradient(135deg,#4fc3f7,#0288d1);border:none;color:#fff;border-radius:12px;padding:14px;font-family:Cairo,sans-serif;font-weight:900;font-size:16px;cursor:pointer;box-shadow:0 6px 20px rgba(79,195,247,.35)">متابعة ← دخول التطبيق</button>
   </div>
 </div>
 
@@ -1062,24 +1062,14 @@ function renderCollection(){
       const advBadge = advMonths>0 ? `<span style="font-size:10px;background:#1565c0;color:#90caf9;border-radius:5px;padding:1px 5px;margin-right:3px">⏩ ${advMonths} مقدم</span>` : '';
       if(canToggle){
         btnHtml=`<button class="pay-btn" style="font-size:11px;padding:4px 8px;background:#1565c0;color:#90caf9;border:1px solid #1976d2" onclick="advancePay(${r.id},'${r.name}',${r.code})">⏩ مقدم</button><button class="pay-btn ${p?'paid':''}" onclick="togglePaid(${r.id})">${p?'✓ تم':'دفع'}</button>`;
-      } else if(currentRole==='user' || isResidentSelf) {
-        if(p&&hasDevicePaid(r.id)){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
-        else if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.7">✓ تم الدفع</button>`;}
-        else if(deviceDoneAny){btnHtml=`<button class="pay-btn" disabled style="opacity:.35;cursor:not-allowed;font-size:11px">🔒 مسجّل</button>`;}
-        else{btnHtml=`<button class="pay-btn" onclick="this.disabled=true;this.textContent='...';userPay(${r.id})">تسجيل دفع</button>`;}
-      } else if(currentRole==='resident_user' && r.id===currentResidentId) {
-        if(p&&hasDevicePaid(r.id)){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
-        else if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.7">✓ تم الدفع</button>`;}
-        else if(deviceDoneAny){btnHtml=`<button class="pay-btn" disabled style="opacity:.35;cursor:not-allowed;font-size:11px">🔒 مسجّل</button>`;}
-        else{btnHtml=`<button class="pay-btn" onclick="document.getElementById('paymentScreen').style.display='flex'">💳 ادفع</button>`;}
-      } else if(currentRole==='resident_user') {
+      } else if(currentRole==='user' || currentRole==='resident_user') {
+        // الساكن يشوف الحالة فقط — الأدمن/المشرف هم اللي يسجلوا
         if(r.id===currentResidentId){
-          // الساكن الفردي - نتجاهل فحص الجهاز ونعتمد على id فقط
-          if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.8">✓ أنت دفعت</button>`;}
-          else{btnHtml=`<button class="pay-btn" onclick="document.getElementById('paymentScreen').style.display='flex'">💳 ادفع</button>`;}
+          if(p){btnHtml=`<span style="font-size:12px;color:#66bb6a;font-weight:700">✓ تم الدفع</span>`;}
+          else{btnHtml=`<span style="font-size:11px;color:#ef5350;font-weight:700">لم يُدفع</span>`;}
         } else {
-          if(p){btnHtml=`<button class="pay-btn paid" disabled style="opacity:.4">✓ دفع</button>`;}
-          else{btnHtml=`<button class="pay-btn" disabled style="opacity:.2;cursor:default;font-size:11px">لم يدفع</button>`;}
+          if(p){btnHtml=`<span style="font-size:11px;color:#66bb6a;opacity:.6">✓ دفع</span>`;}
+          else{btnHtml=`<span style="font-size:10px;color:#546e7a">لم يدفع</span>`;}
         }
       }
       html+=`<div class="r-card ${p?'paid':od>=2?'overdue2':''}">
@@ -1806,20 +1796,7 @@ function enterMainApp(){
   document.getElementById('paymentScreen').style.display='none';
   document.getElementById('mainApp').style.display='block';
 
-  // لو ساكن فردي - سجّل دفعه تلقائياً
-  if(currentRole==='resident_user' && currentResidentId){
-    const id = currentResidentId;
-    if(!hasDevicePaidAny() && !isPaid(id)){
-      const r = residents.find(x=>x.id===id);
-      if(r && confirm('تأكيد تسجيل دفع '+MAINTENANCE+' جنيه عن شقة '+r.code+' - '+r.name+'؟')){
-        markDevicePaid(id);
-        const k=mk(); if(!payments[k])payments[k]={};
-        payments[k][id]=true;
-        logAction('دفع',r.name,r.code);
-        save();
-      }
-    }
-  }
+  // الساكن يشوف فقط — الأدمن والمشرف هم اللي يسجلوا الدفع
 
   setTimeout(applyRole, 50);
   render();
